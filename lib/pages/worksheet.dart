@@ -37,25 +37,23 @@ class _WorkAreaState extends State<WorkArea> {
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
+    var screen = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          child: Text(
-            'To-Do',
-          ),
+        title: const Text(
+          'To-Do',
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.greenAccent,
         foregroundColor: Colors.black,
       ),
       body: SafeArea(
         child: Container(
-            width: w,
+            width: screen.width,
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: Image.asset(
-                  'assets/bg01.png',
+                  'assets/bg3.png',
                 ).image,
               ),
             ),

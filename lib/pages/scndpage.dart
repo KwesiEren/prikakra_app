@@ -104,7 +104,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/home');
+                              Navigator.pushNamed(context, '/todo_scrn');
                             },
                             child: ButnTyp1(
                               text: 'SignUp',
@@ -135,7 +135,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushNamed(context, '/');
+                                  Navigator.pushNamed(context, '/login');
                                 },
                                 child: const Text(
                                   'Login',

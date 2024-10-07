@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/home');
+                            Navigator.pushNamed(context, '/todo_scrn');
                           },
                           child: ButnTyp1(
                             text: 'LOGIN',

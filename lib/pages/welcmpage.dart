@@ -8,15 +8,15 @@ class WelcomeScrn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
+    var screen = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
-        width: w,
+        width: screen.width,
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
             image: Image.asset(
-              'assets/bg01.png',
+              'assets/bg1.png',
             ).image,
           ),
         ),
@@ -28,13 +28,12 @@ class WelcomeScrn extends StatelessWidget {
               height: 30,
             ),
             CircleAvatar(
-              backgroundImage:
-                  AssetImage('assets/photo_2024-07-16_13-43-01.jpg'),
+              backgroundImage: AssetImage('assets/bg2.png'),
               radius: 80,
             ),
             Container(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     "Welcome!",
@@ -55,16 +54,22 @@ class WelcomeScrn extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/second');
+                Navigator.pushNamed(context, '/login');
               },
               child: ButnTyp1(
                   text: 'Next',
-                  size: 30,
-                  btnColor: Colors.white,
+                  size: 25,
+                  btnColor: Colors.green,
                   borderRadius: 30),
             ),
             Column(
-              children: [Text('V1.1')],
+              children: [
+                Text(
+                  'Version 2.0',
+                  style:
+                      TextStyle(color: const Color.fromARGB(99, 255, 255, 255)),
+                )
+              ],
             ),
           ],
         ),

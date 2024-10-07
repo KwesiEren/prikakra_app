@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 
 class toDolist extends StatelessWidget {
@@ -17,9 +15,6 @@ class toDolist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
     return Padding(
       padding: const EdgeInsets.only(
         top: 20,
@@ -35,16 +30,21 @@ class toDolist extends StatelessWidget {
               onChanged: onChanged,
               side: const BorderSide(color: Colors.black),
             ),
-            Text(
-              taskName,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  decoration: taskCompleted
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                  decorationThickness: 3,
-                  decorationColor: Colors.black),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 185),
+              child: Text(
+                taskName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    decoration: taskCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    decorationThickness: 3,
+                    decorationColor: Colors.black),
+              ),
             ),
           ],
         ),
