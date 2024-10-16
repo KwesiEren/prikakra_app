@@ -1,3 +1,4 @@
+import 'package:firebase_test2/pages/userspage.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       '/signup': (context) => const SignUp(),
       '/home': (context) => const HomePage(),
       '/todo_scrn': (context) => const WorkArea(),
+      '/json': (context) => const UserVent(),
     });
   }
 }

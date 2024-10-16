@@ -17,6 +17,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController email = TextEditingController();
+    TextEditingController password = TextEditingController();
     var screen = MediaQuery.of(context).size;
     return Scaffold(
       body: SingleChildScrollView(
@@ -60,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             InputField(
+                                contrlr: email,
                                 displaytxt: 'Email',
                                 hidetxt: false,
                                 borderRadius: 20),
@@ -67,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                               height: 20,
                             ),
                             InputField(
+                                contrlr: password,
                                 displaytxt: 'Password',
                                 hidetxt: true,
                                 borderRadius: 20),
@@ -162,7 +166,9 @@ class _LoginPageState extends State<LoginPage> {
                           height: 20,
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/json');
+                          },
                           child: const Text(
                             'Forgot Password?',
                             style: TextStyle(
