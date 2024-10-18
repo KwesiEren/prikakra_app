@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../components/button.dart';
 import '../components/glscontainer.dart';
@@ -21,33 +19,13 @@ class _SignUpState extends State<SignUp> {
     TextEditingController password = TextEditingController();
     var screen = MediaQuery.of(context).size;
 
-    List users = [];
-    Future<void> readJson() async {
-      final String resp =
-          await rootBundle.loadString('assets/credentials.json');
-      final data = await json.decode(resp);
+    Future<void> insert_data() async {
+      String value = email.text;
+      String pwd = password.text;
 
-      setState(() {
-        users = data["User_info"];
-        print(users);
-      });
-    }
-
-    void updatedata() {
-      String db_email = email.text.trim();
-      String db_password = password.text.trim();
-      setState(() {
-        // Find the index of the user with the given email
-        int index = users.indexWhere((user) => user["email"] == db_email);
-
-        // If the user is found, update the password
-        if (index != -1) {
-          users[index]["password"] = db_password;
-          print("User password updated: ${users[index]}");
-        } else {
-          print("User with email $db_email not found");
-        }
-      });
+      await Supabase.instance.client
+          .from('credentials')
+          .insert({'email': value, 'password': pwd});
     }
 
     return Scaffold(
@@ -140,7 +118,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              updatedata();
+                              insert_data();
                               //Navigator.pushNamed(context, '/todo_scrn');
                             },
                             child: ButnTyp1(

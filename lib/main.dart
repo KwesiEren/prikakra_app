@@ -1,14 +1,22 @@
-import 'package:firebase_test2/pages/userspage.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
 import 'pages/home.dart';
 import 'pages/firstpage.dart';
 import 'pages/scndpage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://mfnwzlelhbcwriwgrjkc.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mbnd6bGVsaGJjd3Jpd2dyamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzODM3MzgsImV4cCI6MjA0Mzk1OTczOH0.AIF5MooVoQiqRoHsEjPksC5UtgHVx5_DblvqOLtjR1Y',
+  );
   runApp(const MyApp());
 }
+// void main() {
+// runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,7 +30,6 @@ class MyApp extends StatelessWidget {
       '/signup': (context) => const SignUp(),
       '/home': (context) => const HomePage(),
       '/todo_scrn': (context) => const WorkArea(),
-      '/json': (context) => const UserVent(),
     });
   }
 }
