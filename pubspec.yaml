@@ -38,6 +38,8 @@ dependencies:
   
   path_provider:
   supabase_flutter: ^2.8.0
+  sqflite: ^2.4.0
+  path:
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import '../components/button.dart';
 import '../components/textarea.dart';
@@ -167,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/json');
+                            Navigator.pushNamed(context, '/task_scrn');
                           },
                           child: const Text(
                             'Forgot Password?',
