@@ -30,6 +30,12 @@ class _TaskDispState extends State<TaskDisp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Task'),
+        centerTitle: true,
+      ),
+      body: Column(),
+    );
   }
 }
