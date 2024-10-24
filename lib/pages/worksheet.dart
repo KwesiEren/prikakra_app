@@ -1,8 +1,10 @@
+import 'package:firebase_test2/pages/updtetaskpage.dart';
 import 'package:flutter/material.dart';
 
 import '../components/todo_list.dart';
 import '../models/db_provider.dart';
 import '../models/task.dart';
+import 'formpage.dart';
 
 class WorkArea extends StatefulWidget {
   const WorkArea({super.key});
@@ -57,6 +59,24 @@ class _WorkAreaState extends State<WorkArea> {
     }
   }
 
+  void _onTodoUpdated(Todo todo) {
+    setState(() {
+      // Replace the updated todo in the list
+      int index = _todoList.indexWhere((t) => t?.id == todo.id);
+      if (index != -1) {
+        _todoList[index] = todo;
+      }
+    });
+  }
+
+  void _navigateToAddTodoForm() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => AddTodoScreen(onTodoAdded: _addTodo)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -99,7 +119,16 @@ class _WorkAreaState extends State<WorkArea> {
                               top: 10, left: 10, right: 10),
                           child: GestureDetector(
                             onLongPress: () {
-                              Navigator.pushNamed(context, '/editform');
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => EditTodoScreen(
+                                    todo: _todoList[
+                                        index]!, // Pass the todo to edit
+                                    onTodoUpdated:
+                                        _onTodoUpdated, // Callback for updating the list
+                                  ),
+                                ),
+                              );
                             },
                             child: ListTile(
                               title: toDolist(
@@ -129,9 +158,7 @@ class _WorkAreaState extends State<WorkArea> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         hoverColor: Colors.greenAccent,
-        onPressed: () {
-          Navigator.pushNamed(context, '/formpage');
-        },
+        onPressed: _navigateToAddTodoForm,
         child: const Icon(Icons.add),
       ),
     );

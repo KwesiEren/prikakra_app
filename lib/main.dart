@@ -1,11 +1,15 @@
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
-import 'pages/home.dart';
+
+import 'models/db_provider.dart';
 import 'pages/firstpage.dart';
+import 'pages/home.dart';
 import 'pages/scndpage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppDB.instnc.database;
   runApp(const MyApp());
 }
 
