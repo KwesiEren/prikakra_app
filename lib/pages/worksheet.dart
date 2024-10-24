@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../components/todo_list.dart';
+import '../models/db_provider.dart';
+import '../models/task.dart';
 
 class WorkArea extends StatefulWidget {
   const WorkArea({super.key});
@@ -10,29 +12,49 @@ class WorkArea extends StatefulWidget {
 }
 
 class _WorkAreaState extends State<WorkArea> {
-  final _contrlr = TextEditingController();
-  List todoList = [
-    ['Code the Front-End.', false],
-    ['Code the Back-End.', false],
-  ];
+  List<Todo?> _todoList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTodos();
+  }
+
+  Future<void> _fetchTodos() async {
+    final todos = await AppDB.instnc.getAllTodo();
+    setState(() {
+      _todoList = todos;
+    });
+  }
 
   void chckboxChng(int index) {
     setState(() {
-      todoList[index][1] = !todoList[index][1];
+      _todoList[index]?.status = !_todoList[index]!.status;
     });
   }
 
-  void delTask(int index) {
+  void _addTodo(Todo newTodo) async {
+    await AppDB.instnc.addTodo(newTodo);
+    _fetchTodos(); // Refresh the todo list after adding a new one
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Todo added successfully!')),
+    );
+  }
+
+  void _onTodoDeleted(int id) {
     setState(() {
-      todoList.removeAt(index);
+      _todoList.removeWhere((todo) => todo?.id == id);
     });
   }
 
-  void savenewTask() {
-    setState(() {
-      todoList.add([_contrlr.text, false]);
-      _contrlr.clear();
-    });
+  void _deleteTodo(int? id) async {
+    if (id != null) {
+      await AppDB.instnc.deleteTodoById(id);
+      _onTodoDeleted(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Todo deleted successfully!')),
+      );
+    }
   }
 
   @override
@@ -58,7 +80,7 @@ class _WorkAreaState extends State<WorkArea> {
               ),
             ),
             child: Center(
-              child: todoList.isEmpty
+              child: _todoList.isEmpty
                   // If list is empty, display this text
                   ? const Text(
                       'The list is empty!',
@@ -69,65 +91,48 @@ class _WorkAreaState extends State<WorkArea> {
                     )
                   // Otherwise display the list
                   : ListView.builder(
-                      itemCount: todoList.length,
+                      itemCount: _todoList.length,
                       physics: const ScrollPhysics(),
                       itemBuilder: (BuildContext context, index) {
                         return Card(
                           margin: const EdgeInsets.only(
                               top: 10, left: 10, right: 10),
-                          child: ListTile(
-                            title: toDolist(
-                              taskName: todoList[index][0],
-                              taskCompleted: todoList[index][1],
-                              onChanged: (value) => chckboxChng(index),
+                          child: GestureDetector(
+                            onLongPress: () {
+                              Navigator.pushNamed(context, '/editform');
+                            },
+                            child: ListTile(
+                              title: toDolist(
+                                taskName: _todoList[index]?.title ?? '',
+                                taskCompleted:
+                                    _todoList[index]?.status == false,
+                                onChanged: (value) => chckboxChng(index),
+                                taskDetail: _todoList[index]?.details ?? '',
+                              ),
+                              subtitle: Text(_todoList[index]?.user ?? ''),
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    _deleteTodo(_todoList[index]?.id);
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  )),
                             ),
-                            trailing: IconButton(
-                                onPressed: () {
-                                  delTask(index);
-                                },
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                )),
                           ),
                         );
                       },
                     ),
             )),
       ),
-      floatingActionButton: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: TextField(
-                maxLines: 4,
-                minLines: 1,
-                controller: _contrlr,
-                decoration: InputDecoration(
-                  hintText: 'Begin Entry Here',
-                  filled: true,
-                  fillColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          FloatingActionButton(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            hoverColor: Colors.greenAccent,
-            onPressed: savenewTask,
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        hoverColor: Colors.greenAccent,
+        onPressed: () {
+          Navigator.pushNamed(context, '/formpage');
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
