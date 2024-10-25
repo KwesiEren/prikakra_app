@@ -39,7 +39,7 @@ class _WorkAreaState extends State<WorkArea> {
     await AppDB.instnc.addTodo(newTodo);
     _fetchTodos(); // Refresh the todo list after adding a new one
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Todo added successfully!')),
+      const SnackBar(content: Text('Todo added successfully!')),
     );
   }
 
@@ -54,7 +54,7 @@ class _WorkAreaState extends State<WorkArea> {
       await AppDB.instnc.deleteTodoById(id);
       _onTodoDeleted(id);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Todo deleted successfully!')),
+        const SnackBar(content: Text('Todo deleted successfully!')),
       );
     }
   }
@@ -85,6 +85,7 @@ class _WorkAreaState extends State<WorkArea> {
         title: const Text(
           'To-Do',
         ),
+        centerTitle: true,
         backgroundColor: Colors.greenAccent,
         foregroundColor: Colors.black,
       ),
@@ -133,8 +134,7 @@ class _WorkAreaState extends State<WorkArea> {
                             child: ListTile(
                               title: toDolist(
                                 taskName: _todoList[index]?.title ?? '',
-                                taskCompleted:
-                                    _todoList[index]?.status == false,
+                                taskCompleted: _todoList[index]?.status == true,
                                 onChanged: (value) => chckboxChng(index),
                                 taskDetail: _todoList[index]?.details ?? '',
                               ),

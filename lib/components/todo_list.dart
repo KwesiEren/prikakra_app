@@ -22,7 +22,6 @@ class toDolist extends StatefulWidget {
 class _toDolistState extends State<toDolist> {
   @override
   Widget build(BuildContext context) {
-    bool expands = false;
     return Padding(
       padding: const EdgeInsets.only(
         top: 20,
@@ -42,41 +41,28 @@ class _toDolistState extends State<toDolist> {
               constraints: const BoxConstraints(maxWidth: 185),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        widget.taskName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            decoration: widget.taskCompleted
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                            decorationThickness: 3,
-                            decorationColor: Colors.black),
-                      ),
-                      ExpandIcon(
-                        isExpanded: expands,
+                  Text(
+                    widget.taskName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
                         color: Colors.black,
-                        expandedColor: Colors.white,
-                        onPressed: (bool isExpanded) {
-                          setState(() {
-                            expands = !isExpanded;
-                          });
-                        },
-                      ),
-                    ],
+                        fontSize: 20,
+                        decoration: widget.taskCompleted
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                        decorationThickness: 3,
+                        decorationColor: Colors.black),
                   ),
-                  if (expands)
-                    Container(
-                      child: Text(widget.taskDetail,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          )),
-                    ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    widget.taskDetail,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black45, fontSize: 15),
+                  )
                 ],
               ),
             ),
