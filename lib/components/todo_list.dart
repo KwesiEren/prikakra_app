@@ -40,6 +40,7 @@ class _toDolistState extends State<toDolist> {
             Container(
               constraints: const BoxConstraints(maxWidth: 185),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.taskName,

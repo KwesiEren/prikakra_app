@@ -39,7 +39,15 @@ class _WorkAreaState extends State<WorkArea> {
     await AppDB.instnc.addTodo(newTodo);
     _fetchTodos(); // Refresh the todo list after adding a new one
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Todo added successfully!')),
+      const SnackBar(
+        content: Text(
+          'Todo added successfully!',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.amberAccent,
+      ),
     );
   }
 
@@ -54,7 +62,15 @@ class _WorkAreaState extends State<WorkArea> {
       await AppDB.instnc.deleteTodoById(id);
       _onTodoDeleted(id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Todo deleted successfully!')),
+        const SnackBar(
+          content: Text(
+            'Todo deleted successfully!',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.amberAccent,
+        ),
       );
     }
   }

@@ -44,7 +44,9 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Todo'),
+        title: const Text('Add Todo'),
+        centerTitle: true,
+        backgroundColor: Colors.greenAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -53,7 +55,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -64,15 +66,22 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   _title = value!;
                 },
               ),
+              const SizedBox(
+                height: 5,
+              ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Details'),
+                decoration: const InputDecoration(labelText: 'Details'),
+                maxLines: 4,
                 onSaved: (value) {
                   _details = value;
                 },
               ),
+              const SizedBox(
+                height: 10,
+              ),
               DropdownButtonFormField<TaskType>(
                 value: _taskType,
-                decoration: InputDecoration(labelText: 'Task Type'),
+                decoration: const InputDecoration(labelText: 'Task Type'),
                 items: TaskType.values.map((taskType) {
                   return DropdownMenuItem<TaskType>(
                     value: taskType,
@@ -85,8 +94,11 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   });
                 },
               ),
+              const SizedBox(
+                height: 10,
+              ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'User'),
+                decoration: const InputDecoration(labelText: 'User'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a user';
@@ -97,11 +109,17 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   _user = value!;
                 },
               ),
+              const SizedBox(
+                height: 10,
+              ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Team'),
+                decoration: const InputDecoration(labelText: 'Team'),
                 onSaved: (value) {
                   _team = value;
                 },
+              ),
+              const SizedBox(
+                height: 10,
               ),
               /*SwitchListTile(
                 title: Text('Status'),
@@ -114,7 +132,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),*/
               ElevatedButton(
                 onPressed: _submitForm,
-                child: Text('Add Todo'),
+                child: const Text('Add Todo'),
               ),
             ],
           ),
