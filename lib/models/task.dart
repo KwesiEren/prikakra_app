@@ -54,16 +54,20 @@ class Todo {
         status: json[statusFN] == 1,
       );
 
-  Map<String, dynamic> toJson() => {
-        idFN: id,
-        titleFN: title,
-        detailsFN: details,
-        taskTypeFN: taskType.name,
-        userFN: user,
-        teamFN: team,
-        crtedDateFN: crtedDate.toIso8601String(),
-        statusFN: status ? 1 : 0,
-      };
+  Map<String, dynamic> toJson() {
+    final data = {
+      titleFN: title,
+      detailsFN: details,
+      taskTypeFN: taskType.name,
+      userFN: user,
+      teamFN: team,
+      crtedDateFN: crtedDate.toIso8601String(),
+      statusFN: status ? 1 : 0,
+    };
+    if (id != null)
+      data[idFN] = id; // Include id only if it is not null (for updates)
+    return data;
+  }
 
   Todo copyWith({
     int? id,

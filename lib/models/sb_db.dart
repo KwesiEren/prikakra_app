@@ -26,16 +26,10 @@ class SupaDB {
       throw Exception('Todo ID cannot be null');
     }
 
-    final response = await Supabase.instance.client
-            .from('todoTable')
-            .update(todo.toJson())
-            .eq('id', todo.id!) // Use non-null assertion here
-        ;
-
-    // Check for error
-    if (response.error != null) {
-      throw Exception('Failed to update todo: ${response.error!.message}');
-    }
+    await Supabase.instance.client
+        .from('todoTable')
+        .update(todo.toJson())
+        .eq('id', todo.id!);
   }
 
   static Future<void> deleteSB(int id) async {

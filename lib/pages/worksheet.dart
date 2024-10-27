@@ -1,5 +1,6 @@
 import 'package:firebase_test2/pages/updtetaskpage.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../components/todo_list.dart';
 import '../models/db_provider.dart';
@@ -28,21 +29,39 @@ class _WorkAreaState extends State<WorkArea> {
     final todoSB = await SupaDB.getAllSB();
     if (todos == todoSB) {
       setState(() {
-        _todoList = todos;
+        _todoList = todoSB;
       });
     } else {
       print('the list doesn\'t match!');
 
       setState(() {
-        _todoList = todoSB;
+        _todoList = todos;
       });
     }
   }
 
-  void chckboxChng(int index) {
+  void chckboxChng(int index) async {
+    // Toggle the status locally
+    final updatedStatus = !_todoList[index]!.status;
+
+    // Update the local list item
     setState(() {
-      _todoList[index]?.status = !_todoList[index]!.status;
+      _todoList[index]?.status = updatedStatus;
     });
+
+    // Perform the update in Supabase
+    final todoId = _todoList[index]?.title;
+    if (todoId != null) {
+      final response = await Supabase.instance.client.from('todoTable').update(
+              {'status': updatedStatus ? 1 : 0}) // Use 1 for true, 0 for false
+          .eq('title', todoId);
+
+      if (response.error != null) {
+        print("Failed to update status: ${response.error!.message}");
+      } else {
+        print("Successfully updated status for Todo ID: $todoId");
+      }
+    }
   }
 
   void _addTodo(Todo newTodo) async {

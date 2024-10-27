@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/sb_db.dart';
 import '../models/task.dart';
@@ -20,7 +21,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   TaskType _taskType = TaskType.today;
   String _user = '';
   String? _team;
-  bool _status = false;
+  final bool _status = false;
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -36,13 +37,11 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         status: _status,
       );
 
-      void _addtoSB(Todo newTodo) async {
-        await SupaDB.addtoSB(newTodo);
-        // Refresh the todo list after adding a new one
-        // SnackBar logic
+      void addtoSB(Todo todo) async {
+        await Supabase.instance.client.from('todoTable').insert(todo.toJson());
       }
 
-      _addtoSB(newTodo);
+      addtoSB(newTodo);
 
       widget.onTodoAdded(newTodo);
       Navigator.pop(context); // Go back to the list after submission
@@ -140,9 +139,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 },
               ),*/
               ElevatedButton(
-                onPressed: () {
-                  _submitForm;
-                },
+                onPressed: _submitForm,
                 child: const Text('Add Todo'),
               ),
             ],
