@@ -1,3 +1,4 @@
+import 'package:firebase_test2/models/sb_db.dart';
 import 'package:flutter/material.dart';
 
 import '../models/db_provider.dart';
@@ -34,6 +35,14 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     _status = widget.todo.status;
   }
 
+  void updtetoSB(Todo todo) async {
+    if (todo.id == null) {
+      throw Exception('Todo ID cannot be null');
+    }
+
+    await SupaDB.updateSB(todo);
+  }
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -45,10 +54,12 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
         status: _status,
       );
 
+      await SupaDB.updateSB(updatedTodo);
+
       await AppDB.instnc.updateTodo(updatedTodo);
       widget.onTodoUpdated(updatedTodo);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Todo updated successfully!')),
+        const SnackBar(content: Text('Todo updated successfully!')),
       );
       Navigator.pop(context);
     }
@@ -57,7 +68,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Todo')),
+      appBar: AppBar(title: const Text('Edit Todo')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -66,17 +77,17 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
             children: [
               TextFormField(
                 initialValue: _title,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
                 onSaved: (value) => _title = value!,
                 validator: (value) => value!.isEmpty ? 'Enter a title' : null,
               ),
               TextFormField(
                 initialValue: _details,
-                decoration: InputDecoration(labelText: 'Details'),
+                decoration: const InputDecoration(labelText: 'Details'),
                 onSaved: (value) => _details = value,
               ),
               DropdownButtonFormField<TaskType>(
-                decoration: InputDecoration(labelText: 'Task Type'),
+                decoration: const InputDecoration(labelText: 'Task Type'),
                 value: _taskType,
                 onChanged: (value) {
                   setState(() {
@@ -91,7 +102,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
                 }).toList(),
               ),
               SwitchListTile(
-                title: Text('Status'),
+                title: const Text('Status'),
                 value: _status,
                 onChanged: (value) {
                   setState(() {
@@ -100,8 +111,10 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
                 },
               ),
               ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Update Todo'),
+                onPressed: () {
+                  _submitForm();
+                },
+                child: const Text('Update Todo'),
               ),
             ],
           ),

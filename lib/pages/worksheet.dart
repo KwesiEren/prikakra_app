@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../components/todo_list.dart';
 import '../models/db_provider.dart';
+import '../models/sb_db.dart';
 import '../models/task.dart';
 import 'formpage.dart';
 
@@ -24,9 +25,18 @@ class _WorkAreaState extends State<WorkArea> {
 
   Future<void> _fetchTodos() async {
     final todos = await AppDB.instnc.getAllTodo();
-    setState(() {
-      _todoList = todos;
-    });
+    final todoSB = await SupaDB.getAllSB();
+    if (todos == todoSB) {
+      setState(() {
+        _todoList = todos;
+      });
+    } else {
+      print('the list doesn\'t match!');
+
+      setState(() {
+        _todoList = todoSB;
+      });
+    }
   }
 
   void chckboxChng(int index) {
@@ -93,6 +103,13 @@ class _WorkAreaState extends State<WorkArea> {
     );
   }
 
+  void deletefrmSB(int? id) async {
+    if (id != null) {
+      await SupaDB.deleteSB(id);
+      //_onTodoDeleted(id);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -157,6 +174,7 @@ class _WorkAreaState extends State<WorkArea> {
                               subtitle: Text(_todoList[index]?.user ?? ''),
                               trailing: IconButton(
                                   onPressed: () {
+                                    deletefrmSB(_todoList[index]?.id);
                                     _deleteTodo(_todoList[index]?.id);
                                   },
                                   icon: const Icon(

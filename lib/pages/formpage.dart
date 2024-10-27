@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/sb_db.dart';
 import '../models/task.dart';
 import '../models/task_type.dart';
 
@@ -34,6 +35,14 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         crtedDate: DateTime.now(),
         status: _status,
       );
+
+      void _addtoSB(Todo newTodo) async {
+        await SupaDB.addtoSB(newTodo);
+        // Refresh the todo list after adding a new one
+        // SnackBar logic
+      }
+
+      _addtoSB(newTodo);
 
       widget.onTodoAdded(newTodo);
       Navigator.pop(context); // Go back to the list after submission
@@ -131,7 +140,9 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 },
               ),*/
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: () {
+                  _submitForm;
+                },
                 child: const Text('Add Todo'),
               ),
             ],
