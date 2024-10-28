@@ -38,6 +38,7 @@ dependencies:
   sqflite:
   path:
   supabase_flutter: 2.8.0
+  crypto:
 
 dev_dependencies:
   flutter_test:

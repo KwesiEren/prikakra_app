@@ -144,6 +144,12 @@ class _WorkAreaState extends State<WorkArea> {
     var screen = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/login');
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
         title: const Text(
           'To-Do',
         ),

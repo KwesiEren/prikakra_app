@@ -1,3 +1,4 @@
+import 'package:firebase_test2/models/sb_auth.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ Future<void> main() async {
   await AppDB.instnc.database;
   runApp(const MyApp());
 }
+
+final authService = SBAuth();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

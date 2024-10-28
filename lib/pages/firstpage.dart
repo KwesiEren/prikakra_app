@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+
 import '../components/button.dart';
+import '../components/glscontainer.dart';
 import '../components/textarea.dart';
 import '../components/tile.dart';
-
-import '../components/glscontainer.dart';
+import '../models/sb_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +14,32 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailInput = TextEditingController();
+  final TextEditingController _passwordInput = TextEditingController();
+  final _auth = SBAuth();
+
+  @override
+  void dispose() {
+    _emailInput.dispose();
+    _passwordInput.dispose();
+    super.dispose();
+  }
+
+  Future<void> loginAct() async {
+    final email = _emailInput.text;
+    final password = _passwordInput.text;
+
+    final response = await _auth.login(email, password);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(response)), // Show response message
+    );
+
+    if (response.startsWith("Login successful")) {
+      Navigator.pushNamed(context, '/todo_scrn');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -24,8 +49,11 @@ class _LoginPageState extends State<LoginPage> {
           width: screen.width,
           height: screen.height,
           decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/bg1.png'), fit: BoxFit.cover)),
+            image: DecorationImage(
+              image: AssetImage('assets/bg1.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -38,47 +66,42 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Hi!',
                         style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 16, 99, 19)),
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: Color.fromARGB(255, 16, 99, 19),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 GlassBox(
                   child: Container(
                     padding: const EdgeInsets.only(left: 45, right: 45),
                     child: Column(
                       children: [
-                        const SizedBox(
-                          height: 30,
-                        ),
+                        const SizedBox(height: 30),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             InputField(
-                                displaytxt: 'Email',
-                                hidetxt: false,
-                                borderRadius: 20),
-                            const SizedBox(
-                              height: 20,
+                              displaytxt: 'Email',
+                              hidetxt: false,
+                              borderRadius: 20,
+                              contrlr: _emailInput,
                             ),
+                            const SizedBox(height: 20),
                             InputField(
-                                displaytxt: 'Password',
-                                hidetxt: true,
-                                borderRadius: 20),
+                              displaytxt: 'Password',
+                              hidetxt: true,
+                              borderRadius: 20,
+                              contrlr: _passwordInput,
+                            ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/todo_scrn');
-                          },
+                          onTap: loginAct,
                           child: ButnTyp1(
                             text: 'LOGIN',
                             size: 15,
@@ -89,51 +112,49 @@ class _LoginPageState extends State<LoginPage> {
                         const Text(
                           'or',
                           style: TextStyle(
-                              fontWeight: FontWeight.w100,
-                              fontSize: 15,
-                              color: Colors.white),
+                            fontWeight: FontWeight.w100,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.only(left: 50, right: 50),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               GestureDetector(
-                                  onTap: () {},
+                                onTap: () {},
+                                child: Container(
+                                  width: screen.width * 0.18,
+                                  height: screen.height * 0.08,
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        228, 255, 255, 255),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                   child: Container(
-                                    width: screen.width * 0.18,
-                                    height: screen.height * 0.08,
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          228, 255, 255, 255),
-                                      borderRadius: BorderRadius.circular(10),
+                                    margin: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      image: DecorationImage(
+                                        fit: BoxFit.contain,
+                                        image: AssetImage('assets/google.png'),
+                                      ),
                                     ),
-                                    child: Container(
-                                      margin: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
-                                          //color: Colors.white,
-                                          image: DecorationImage(
-                                              fit: BoxFit.contain,
-                                              image: AssetImage(
-                                                  'assets/google.png'))),
-                                    ),
-                                  )),
+                                  ),
+                                ),
+                              ),
                               GestureDetector(
                                 onTap: () {},
                                 child: ButnTile(
                                   icnName: 'assets/twitter.png',
                                   margin: 10,
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -158,9 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         GestureDetector(
                           onTap: () {},
                           child: const Text(
