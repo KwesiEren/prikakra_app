@@ -27,17 +27,27 @@ class _WorkAreaState extends State<WorkArea> {
   Future<void> _fetchTodos() async {
     final todos = await AppDB.instnc.getAllTodo();
     final todoSB = await SupaDB.getAllSB();
-    if (todos == todoSB) {
-      setState(() {
-        _todoList = todoSB;
-      });
-    } else {
-      print('the list doesn\'t match!');
+    print(_todoList);
 
-      setState(() {
-        _todoList = todos;
-      });
-    }
+    print('Online DB fetched');
+
+    setState(() {
+      _todoList = todoSB;
+    });
+    print('$_todoList');
+  }
+
+  Future<void> _fetchTask() async {
+    final todos = await AppDB.instnc.getAllTodo();
+    final todoSB = await SupaDB.getAllSB();
+    print(_todoList);
+
+    print('Local DB fetched');
+
+    setState(() {
+      _todoList = todos;
+    });
+    print('$_todoList');
   }
 
   void chckboxChng(int index) async {
@@ -66,7 +76,7 @@ class _WorkAreaState extends State<WorkArea> {
 
   void _addTodo(Todo newTodo) async {
     await AppDB.instnc.addTodo(newTodo);
-    _fetchTodos(); // Refresh the todo list after adding a new one
+    _fetchTask(); // Refresh the todo list after adding a new one
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(

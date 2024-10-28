@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/sb_db.dart';
 import '../models/task.dart';
 import '../models/task_type.dart';
 
