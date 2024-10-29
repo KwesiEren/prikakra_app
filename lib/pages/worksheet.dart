@@ -181,7 +181,7 @@ class _WorkAreaState extends State<WorkArea> {
                   // Otherwise display the list
                   : ListView.builder(
                       itemCount: _todoList.length,
-                      physics: const ScrollPhysics(),
+                      physics: BouncingScrollPhysics(),
                       itemBuilder: (BuildContext context, index) {
                         return Card(
                           margin: const EdgeInsets.only(

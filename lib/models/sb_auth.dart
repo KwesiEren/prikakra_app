@@ -6,12 +6,15 @@ class SBAuth {
   final AuthSB = Supabase.instance.client;
   final hasher = PasswordHasher();
 
-  // Sign-up Function
+  // Sign-up Function to Supabase table "user_credentials"
   Future<void> signUp(String user, String email, String password) async {
     try {
+      //To encode password by hashing
       final salt = hasher.generateSalt();
       final hashedPassword = hasher.hashPassword(password, salt);
 
+      //Parameters to insert into table "user_credentials". NB: the salt value is also recorded
+      // so that the password can be decoded later in the Login Function.
       final response = await AuthSB.from('user_credentials').insert({
         'user': user,
         'email': email,
@@ -30,8 +33,11 @@ class SBAuth {
     }
   }
 
+  //Login Function to the Supabase table "user_credentials"
   Future<String> login(String email, String password) async {
     try {
+      //To retrieve the parameters including the salt value
+      // from the table.
       final resp = await AuthSB.from('user_credentials')
           .select('password, salt')
           .eq('email', email)

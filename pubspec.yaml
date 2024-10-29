@@ -39,6 +39,8 @@ dependencies:
   path:
   supabase_flutter: 2.8.0
   crypto:
+  connectivity_plus:
+  get:
 
 dev_dependencies:
   flutter_test:
