@@ -1,13 +1,26 @@
+import 'package:firebase_test2/models/sb_auth.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
-import 'pages/home.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'models/db_provider.dart';
 import 'pages/firstpage.dart';
+import 'pages/home.dart';
 import 'pages/scndpage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://mfnwzlelhbcwriwgrjkc.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mbnd6bGVsaGJjd3Jpd2dyamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzODM3MzgsImV4cCI6MjA0Mzk1OTczOH0.AIF5MooVoQiqRoHsEjPksC5UtgHVx5_DblvqOLtjR1Y',
+  );
+  await AppDB.instnc.database;
   runApp(const MyApp());
 }
+
+final authService = SBAuth();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(debugShowCheckedModeBanner: false, routes: {
+      //Navigation controls: just add pages class and label.
       '/': (context) => const WelcomeScrn(),
       '/login': (context) => const LoginPage(),
       '/signup': (context) => const SignUp(),

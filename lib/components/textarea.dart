@@ -7,12 +7,14 @@ class InputField extends StatefulWidget {
       {required this.displaytxt,
       required this.hidetxt,
       required this.borderRadius,
+      required this.contrlr,
       this.borderColor,
       super.key});
 
   String displaytxt;
   double borderRadius;
   Color? borderColor;
+  TextEditingController contrlr;
   bool hidetxt;
 
   @override
@@ -20,13 +22,11 @@ class InputField extends StatefulWidget {
 }
 
 class _InputFieldState extends State<InputField> {
-  final _contrlr = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return TextField(
       obscureText: widget.hidetxt,
-      controller: _contrlr,
+      controller: widget.contrlr,
       decoration: InputDecoration(
         hintText: widget.displaytxt,
         filled: true,
