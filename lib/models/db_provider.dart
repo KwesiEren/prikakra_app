@@ -20,14 +20,16 @@ class AppDB {
   Future _create(Database db, int version) async {
     await db.execute('''
     CREATE TABLE $tableName(
-    $idFN INTEGER PRIMARY KEY AUTOINCREMENT,
-    $titleFN TEXT NOT NULL,
-    $detailsFN TEXT,
-    $taskTypeFN TEXT NOT NULL,
-    $userFN TEXT NOT NULL,
-    $teamFN TEXT,
-    $crtedDateFN  TEXT NOT NULL,
-    $statusFN BOOLEAN NOT NULL)
+      $idFN INTEGER PRIMARY KEY AUTOINCREMENT,
+      $titleFN TEXT NOT NULL,
+      $detailsFN TEXT,
+      $taskTypeFN TEXT NOT NULL,
+      $userFN TEXT NOT NULL,
+      $teamFN TEXT,
+      $crtedDateFN TEXT NOT NULL,
+      $statusFN BOOLEAN NOT NULL,
+      $isSyncedFN BOOLEAN NOT NULL
+    )
     ''');
   }
 
@@ -59,6 +61,16 @@ class AppDB {
     final result = await db.query(tableName, orderBy: "$idFN ASC");
 
     return result.map((json) => Todo.fromJson(json)).toList();
+  }
+
+  Future<void> updateTodoStatus(int? id, bool status) async {
+    final db = await database;
+    await db.update(
+      tableName, // Replace with your actual table name
+      {'$statusFN': status ? 1 : 0}, // Convert boolean to int for SQLite
+      where: '$idFN = ?', // Specify the ID column
+      whereArgs: [id],
+    );
   }
 
   Future<int> updateTodo(Todo todo) async {

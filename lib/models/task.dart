@@ -10,6 +10,7 @@ const String userFN = "user";
 const String teamFN = "team";
 const String crtedDateFN = "crtedDate";
 const String statusFN = "status";
+const String isSyncedFN = "isSynced"; // New field for sync status
 
 const List<String> taskColumns = [
   idFN,
@@ -20,6 +21,7 @@ const List<String> taskColumns = [
   teamFN,
   crtedDateFN,
   statusFN,
+  isSyncedFN, // Include in columns
 ];
 
 class Todo {
@@ -31,6 +33,7 @@ class Todo {
   final String? team;
   final TaskType taskType;
   bool status;
+  bool isSynced; // New field to track sync status
 
   Todo({
     this.id,
@@ -41,6 +44,7 @@ class Todo {
     required this.taskType,
     required this.crtedDate,
     required this.status,
+    this.isSynced = false, // Default value for new todos
   });
 
   static Todo fromJson(Map<String, dynamic> json) => Todo(
@@ -52,6 +56,7 @@ class Todo {
         team: json[teamFN] as String,
         crtedDate: DateTime.parse(json[crtedDateFN] as String),
         status: json[statusFN] == 1,
+        isSynced: json[isSyncedFN] == 1, // Read sync status
       );
 
   Map<String, dynamic> toJson() {
@@ -63,6 +68,7 @@ class Todo {
       teamFN: team,
       crtedDateFN: crtedDate.toIso8601String(),
       statusFN: status ? 1 : 0,
+      isSyncedFN: isSynced ? 1 : 0, // Write sync status
     };
     if (id != null)
       data[idFN] = id; // Include id only if it is not null (for updates)
@@ -78,6 +84,7 @@ class Todo {
     String? team,
     DateTime? crtedDate,
     bool? status,
+    bool? isSynced, // Include in copyWith
   }) =>
       Todo(
         id: id ?? this.id,
@@ -88,5 +95,6 @@ class Todo {
         team: team ?? this.team,
         crtedDate: crtedDate ?? this.crtedDate,
         status: status ?? this.status,
+        isSynced: isSynced ?? this.isSynced, // Handle sync status
       );
 }

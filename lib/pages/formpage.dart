@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/task.dart';
@@ -20,7 +23,14 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   TaskType _taskType = TaskType.today;
   String _user = '';
   String? _team;
-  final bool _status = false;
+  bool _status = false; // Changed to non-final
+  bool _isSynced = false; // Changed to non-final
+  late StreamSubscription<InternetStatus> _internetSubscription;
+
+  Future<void> addtoSB(Todo todo) async {
+    await Supabase.instance.client.from('todoTable').insert(todo.toJson());
+    print('Todo uploaded to Supabase');
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -34,16 +44,13 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         taskType: _taskType,
         crtedDate: DateTime.now(),
         status: _status,
+        isSynced: _isSynced,
       );
-
-      void addtoSB(Todo todo) async {
-        await Supabase.instance.client.from('todoTable').insert(todo.toJson());
-      }
 
       addtoSB(newTodo);
 
       widget.onTodoAdded(newTodo);
-      Navigator.pop(context); // Go back to the list after submission
+      Navigator.pop(context); // Go back after submission
     }
   }
 
@@ -73,9 +80,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   _title = value!;
                 },
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Details'),
                 maxLines: 4,
@@ -83,9 +88,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   _details = value;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               DropdownButtonFormField<TaskType>(
                 value: _taskType,
                 decoration: const InputDecoration(labelText: 'Task Type'),
@@ -101,9 +104,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   });
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'User'),
                 validator: (value) {
@@ -116,27 +117,23 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   _user = value!;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Team'),
                 onSaved: (value) {
                   _team = value;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              /*SwitchListTile(
-                title: Text('Status'),
+              const SizedBox(height: 10),
+              SwitchListTile(
+                title: const Text('Status'),
                 value: _status,
                 onChanged: (value) {
                   setState(() {
                     _status = value;
                   });
                 },
-              ),*/
+              ),
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Add Todo'),

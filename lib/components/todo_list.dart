@@ -11,7 +11,7 @@ class toDolist extends StatefulWidget {
       });
 
   final String taskName;
-  final String taskDetail;
+  final String? taskDetail;
   final bool taskCompleted;
   final Function(bool?)? onChanged;
 
@@ -59,7 +59,7 @@ class _toDolistState extends State<toDolist> {
                     height: 5,
                   ),
                   Text(
-                    widget.taskDetail,
+                    widget.taskDetail ?? '',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: Colors.black45, fontSize: 15),

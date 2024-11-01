@@ -6,7 +6,7 @@ import '../models/task.dart';
 import '../models/task_type.dart';
 
 class EditTodoScreen extends StatefulWidget {
-  final Todo todo;
+  final Todo? todo;
   final Function(Todo) onTodoUpdated;
 
   const EditTodoScreen({
@@ -29,10 +29,10 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
   @override
   void initState() {
     super.initState();
-    _title = widget.todo.title;
-    _details = widget.todo.details;
-    _taskType = widget.todo.taskType;
-    _status = widget.todo.status;
+    _title = widget.todo!.title;
+    _details = widget.todo!.details;
+    _taskType = widget.todo!.taskType;
+    _status = widget.todo!.status;
   }
 
   void updtetoSB(Todo todo) async {
@@ -47,7 +47,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final updatedTodo = widget.todo.copyWith(
+      final updatedTodo = widget.todo!.copyWith(
         title: _title,
         details: _details,
         taskType: _taskType,

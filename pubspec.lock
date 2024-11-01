@@ -216,6 +216,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  internet_connection_checker_plus:
+    dependency: "direct main"
+    description:
+      name: internet_connection_checker_plus
+      sha256: "95da3194bdb98cb606b921f0e0007cbe55c32d6a7fa92d5debe59ef4183ce2a6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.2"
   jwt_decode:
     dependency: transitive
     description:
@@ -316,10 +324,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider
-      sha256: fec0d61223fba3154d87759e3cc27fe2c8dc498f6386c6d6fc80d1afdd1bf378
+      sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.1.5"
   path_provider_android:
     dependency: transitive
     description:
@@ -617,10 +625,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "0dea215895a4d254401730ca0ba8204b29109a34a99fb06ae559a2b60988d2de"
+      sha256: "6fc2f56536ee873eeb867ad176ae15f304ccccc357848b351f6f0d8d4a40d193"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.13"
+    version: "6.3.14"
   url_launcher_ios:
     dependency: transitive
     description:

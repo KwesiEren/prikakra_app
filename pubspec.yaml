@@ -41,6 +41,7 @@ dependencies:
   crypto:
   connectivity_plus:
   get:
+  internet_connection_checker_plus:
 
 dev_dependencies:
   flutter_test:
