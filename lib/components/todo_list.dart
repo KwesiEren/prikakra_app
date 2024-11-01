@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
 
-class toDolist extends StatefulWidget {
-  const toDolist(
-      {super.key,
-      required this.taskName,
-      required this.taskCompleted,
-      required this.onChanged,
-      required this.taskDetail
-      //required this.deleteFunction,
-      });
+class toDolist extends StatelessWidget {
+  const toDolist({
+    super.key,
+    required this.taskName,
+    required this.taskCompleted,
+    required this.onChanged,
+    //required this.deleteFunction,
+  });
 
   final String taskName;
-  final String? taskDetail;
   final bool taskCompleted;
   final Function(bool?)? onChanged;
 
-  @override
-  State<toDolist> createState() => _toDolistState();
-}
-
-class _toDolistState extends State<toDolist> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -33,38 +26,24 @@ class _toDolistState extends State<toDolist> {
         child: Row(
           children: [
             Checkbox(
-              value: widget.taskCompleted,
-              onChanged: widget.onChanged,
+              value: taskCompleted,
+              onChanged: onChanged,
               side: const BorderSide(color: Colors.black),
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 185),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.taskName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        decoration: widget.taskCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        decorationThickness: 3,
-                        decorationColor: Colors.black),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    widget.taskDetail ?? '',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.black45, fontSize: 15),
-                  )
-                ],
+              child: Text(
+                taskName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    decoration: taskCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    decorationThickness: 3,
+                    decorationColor: Colors.black),
               ),
             ),
           ],

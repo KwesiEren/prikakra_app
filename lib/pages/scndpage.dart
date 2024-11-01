@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../components/button.dart';
 import '../components/glscontainer.dart';
 import '../components/textarea.dart';
-import '../models/sb_auth.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,21 +12,6 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  late final TextEditingController _userinput = TextEditingController();
-  late final TextEditingController _emailinput = TextEditingController();
-  late final TextEditingController _passwrdinput = TextEditingController();
-  final _auth = SBAuth();
-
-  Future<void> signup() async {
-    final username = _userinput.text;
-    final email = _emailinput.text;
-    final password = _passwrdinput.text;
-
-    await _auth.signUp(username, email, password);
-
-    Navigator.pushNamed(context, '/todo_scrn');
-  }
-
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -103,29 +87,16 @@ class _SignUpState extends State<SignUp> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               InputField(
-                                displaytxt: 'Username',
-                                hidetxt: false,
-                                borderRadius: 20,
-                                contrlr: _userinput,
-                              ),
+                                  displaytxt: 'Email',
+                                  hidetxt: false,
+                                  borderRadius: 20),
                               const SizedBox(
                                 height: 20,
                               ),
                               InputField(
-                                displaytxt: 'Email',
-                                hidetxt: false,
-                                borderRadius: 20,
-                                contrlr: _emailinput,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              InputField(
-                                displaytxt: 'Password',
-                                hidetxt: true,
-                                borderRadius: 20,
-                                contrlr: _passwrdinput,
-                              ),
+                                  displaytxt: 'Password',
+                                  hidetxt: true,
+                                  borderRadius: 20),
                             ],
                           ),
                           const SizedBox(
@@ -133,8 +104,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              signup();
-                              //Navigator.pushNamed(context, '/todo_scrn');
+                              Navigator.pushNamed(context, '/todo_scrn');
                             },
                             child: ButnTyp1(
                               text: 'SignUp',
