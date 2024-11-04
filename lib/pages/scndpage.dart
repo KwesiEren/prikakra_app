@@ -12,12 +12,15 @@ class SignUp extends StatefulWidget {
   State<SignUp> createState() => _SignUpState();
 }
 
+//This is the codes block for the signup page and has user auth added.
+
 class _SignUpState extends State<SignUp> {
   late final TextEditingController _userinput = TextEditingController();
   late final TextEditingController _emailinput = TextEditingController();
   late final TextEditingController _passwrdinput = TextEditingController();
   final _auth = SBAuth();
 
+  //Sign up function which adds users to online database
   Future<void> signup() async {
     final username = _userinput.text;
     final email = _emailinput.text;
@@ -28,6 +31,7 @@ class _SignUpState extends State<SignUp> {
     Navigator.pushNamed(context, '/todo_scrn');
   }
 
+  //UI code for Signup page here:
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -37,9 +41,11 @@ class _SignUpState extends State<SignUp> {
         child: Container(
           width: screen.width,
           height: screen.height,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/bg1.png'), fit: BoxFit.cover)),
+          decoration:
+              //Background image here:
+              const BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/bg1.png'), fit: BoxFit.cover)),
           child: SafeArea(
             child: Container(
               width: screen.width,

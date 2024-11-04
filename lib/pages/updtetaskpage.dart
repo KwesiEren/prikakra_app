@@ -19,6 +19,8 @@ class EditTodoScreen extends StatefulWidget {
   _EditTodoScreenState createState() => _EditTodoScreenState();
 }
 
+//This codes below hold the edit task page. that is just how to put it straight
+
 class _EditTodoScreenState extends State<EditTodoScreen> {
   final _formKey = GlobalKey<FormState>();
   late String _title;
@@ -35,6 +37,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     _status = widget.todo!.status;
   }
 
+  // Functions to update the task in the online database
   void updtetoSB(Todo todo) async {
     if (todo.id == null) {
       throw Exception('Todo ID cannot be null');
@@ -43,6 +46,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     await SupaDB.updateSB(todo);
   }
 
+  // Function to handle all update request for local and online database
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -65,6 +69,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     }
   }
 
+  //UI codes here:
   @override
   Widget build(BuildContext context) {
     return Scaffold(

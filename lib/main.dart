@@ -9,6 +9,16 @@ import 'pages/firstpage.dart';
 import 'pages/home.dart';
 import 'pages/scndpage.dart';
 
+// Okay so to get it out there I am not good at explaining
+// stuff but I will try my best to give you clarity on the apps codes
+// as best as I can to my knowledge.
+
+//Code revisions can be made where possible because there is alot to improve
+// in this project.
+
+// I used Supabase client as my online database handler and I use sqflite as my
+// local database handler.
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(

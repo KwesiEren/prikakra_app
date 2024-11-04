@@ -1,5 +1,6 @@
 enum TaskType { today, planned, urgent }
 
+// This just describes the Task type options
 extension TaskTypeExtn on TaskType {
   String get name {
     switch (this) {

@@ -13,6 +13,9 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
+// This is the Codes for the Login page. I have integrated  user
+// authentication using email and password. NB: You can only login when online.
+
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailInput = TextEditingController();
   final TextEditingController _passwordInput = TextEditingController();
@@ -25,6 +28,8 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  // Login Function that takes the email and password as parameters
+  // and runs an authentication call to the online database.
   Future<void> loginAct() async {
     final email = _emailInput.text;
     final password = _passwordInput.text;
@@ -44,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // UI code block:
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -54,7 +60,9 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             width: screen.width,
             height: screen.height,
-            decoration: const BoxDecoration(
+            decoration:
+                //Background Image here:
+                const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/bg1.png'),
                 fit: BoxFit.cover,
@@ -82,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
                   GlassBox(
+                    height: 0.70,
                     child: Container(
                       padding: const EdgeInsets.only(left: 45, right: 45),
                       child: Column(

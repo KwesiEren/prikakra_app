@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'hash_method.dart';
 
+// The Auth codes which handle the login and signup calls to the online database.
+
 class SBAuth {
   final AuthSB = Supabase.instance.client;
   final hasher = PasswordHasher();
@@ -47,6 +49,7 @@ class SBAuth {
       final salt = resp['salt'];
       final hashedInputPassword = hasher.hashPassword(password, salt);
 
+      //Condition to compare the passwords to test authentication.
       if (hashedInputPassword == storedHashedPassword) {
         return "Login successful for email: $email";
       } else {

@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
+
 import '../components/button.dart';
+
+//Welcome Screen, just that lol.
 
 class WelcomeScrn extends StatelessWidget {
   const WelcomeScrn({super.key});
@@ -12,7 +13,9 @@ class WelcomeScrn extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: screen.width,
-        decoration: BoxDecoration(
+        decoration:
+            //Background Image here:
+            BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
             image: Image.asset(
@@ -24,15 +27,15 @@ class WelcomeScrn extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: AssetImage('assets/bg2.png'),
               radius: 80,
             ),
             Container(
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
@@ -62,12 +65,11 @@ class WelcomeScrn extends StatelessWidget {
                   btnColor: Colors.green,
                   borderRadius: 30),
             ),
-            Column(
+            const Column(
               children: [
                 Text(
-                  'Version 2.0',
-                  style:
-                      TextStyle(color: const Color.fromARGB(99, 255, 255, 255)),
+                  'Version 2.1',
+                  style: TextStyle(color: Color.fromARGB(99, 255, 255, 255)),
                 )
               ],
             ),

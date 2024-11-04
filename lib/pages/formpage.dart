@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/task.dart';
@@ -16,6 +15,9 @@ class AddTodoScreen extends StatefulWidget {
   _AddTodoScreenState createState() => _AddTodoScreenState();
 }
 
+// This is the codes for the Form page when
+// you want to create a new task.
+
 class _AddTodoScreenState extends State<AddTodoScreen> {
   final _formKey = GlobalKey<FormState>();
   String _title = '';
@@ -25,13 +27,17 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   String? _team;
   bool _status = false; // Changed to non-final
   bool _isSynced = false; // Changed to non-final
-  late StreamSubscription<InternetStatus> _internetSubscription;
 
+// This Adds the new task to the online DB
   Future<void> addtoSB(Todo todo) async {
     await Supabase.instance.client.from('todoTable').insert(todo.toJson());
     print('Todo uploaded to Supabase');
   }
 
+  // This is the Function to be called when you
+  // press the "Add task" button. This handles
+  // adding the task to the local database and
+  // pushing it to the online database.
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -52,8 +58,11 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       widget.onTodoAdded(newTodo);
       Navigator.pop(context); // Go back after submission
     }
+    // Honestly I think a better function can be made to tackle this sort of operation but
+    // for now I will work with this.
   }
 
+  // UI code block here:
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,7 +134,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 },
               ),
               const SizedBox(height: 10),
-              SwitchListTile(
+              /* SwitchListTile(
                 title: const Text('Status'),
                 value: _status,
                 onChanged: (value) {
@@ -133,7 +142,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                     _status = value;
                   });
                 },
-              ),
+              ),*/
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Add Todo'),

@@ -3,9 +3,12 @@ import 'package:sqflite/sqflite.dart';
 
 import 'task.dart';
 
+// Here is my Local database handler codes.
+// Created a database 'todoDB' and table 'todoTable':
 const String fileName = "todoDB.db";
 
 class AppDB {
+  //Initialize Database:
   AppDB._init();
 
   static final AppDB instnc = AppDB._init();
@@ -17,6 +20,7 @@ class AppDB {
     return _database!;
   }
 
+  //Creating table and its column:
   Future _create(Database db, int version) async {
     await db.execute('''
     CREATE TABLE $tableName(
@@ -47,7 +51,10 @@ class AppDB {
     );
   }
 
+  //Creating CRUD operations:
+
   Future<Todo> addTodo(Todo todo) async {
+    //Insert entry into todoTable
     final db = await instnc.database;
     final id = await db.insert(tableName, todo.toJson());
 
@@ -57,6 +64,7 @@ class AppDB {
   }
 
   Future<List<Todo?>> getAllTodo() async {
+    //Fetch all elements in table
     final db = await instnc.database;
     final result = await db.query(tableName, orderBy: "$idFN ASC");
 
@@ -64,16 +72,18 @@ class AppDB {
   }
 
   Future<void> updateTodoStatus(int? id, bool status) async {
+    //Update element in status column by ID
     final db = await database;
     await db.update(
-      tableName, // Replace with your actual table name
+      tableName,
       {'$statusFN': status ? 1 : 0}, // Convert boolean to int for SQLite
-      where: '$idFN = ?', // Specify the ID column
+      where: '$idFN = ?',
       whereArgs: [id],
     );
   }
 
   Future<int> updateTodo(Todo todo) async {
+    //Update element in table by ID
     final db = await instnc.database;
     final result = await db.update(
       tableName,
@@ -86,6 +96,7 @@ class AppDB {
   }
 
   Future<int> deleteTodoById(int id) async {
+    //Delete element in table by ID
     final db = await instnc.database;
     final result = await db.delete(
       tableName,
@@ -97,6 +108,7 @@ class AppDB {
   }
 
   Future<void> closeDB() async {
+    //Close Database
     final db = await instnc.database;
     return db.close();
   }

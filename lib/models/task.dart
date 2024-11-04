@@ -1,5 +1,6 @@
 import 'task_type.dart';
 
+// Database table field notations
 const String tableName = "todoTable";
 
 const String idFN = "id";
@@ -24,6 +25,7 @@ const List<String> taskColumns = [
   isSyncedFN, // Include in columns
 ];
 
+//Task model to describe needed parameters the object task takes
 class Todo {
   final int? id;
   final String title;
@@ -95,6 +97,6 @@ class Todo {
         team: team ?? this.team,
         crtedDate: crtedDate ?? this.crtedDate,
         status: status ?? this.status,
-        isSynced: isSynced ?? this.isSynced, // Handle sync status
+        isSynced: isSynced ?? this.isSynced,
       );
 }

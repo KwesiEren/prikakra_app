@@ -2,8 +2,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'task.dart';
 
+//This is the codes to handle the Online database.
+//The Supabase client was initialized in main.dart file so there
+// is only the CRUD functions here.
 class SupaDB {
   static Future<void> addtoSB(Todo todo) async {
+    // push entry into the table
     final response =
         await Supabase.instance.client.from('todoTable').insert(todo.toJson());
 
@@ -13,6 +17,7 @@ class SupaDB {
   }
 
   static Future<List<Todo?>> getAllSB() async {
+    // Get all elements in the table
     final response = await Supabase.instance.client
         .from('todoTable')
         .select('*'); // Use .execute() here
@@ -22,6 +27,7 @@ class SupaDB {
   }
 
   static Future<void> updateSB(Todo todo) async {
+    //Updates element in the table by ID
     if (todo.id == null) {
       throw Exception('Todo ID cannot be null');
     }
@@ -33,6 +39,7 @@ class SupaDB {
   }
 
   static Future<void> deleteSB(int id) async {
+    //Deletes element in table by ID
     final response =
         await Supabase.instance.client.from('todoTable').delete().eq('id', id);
 

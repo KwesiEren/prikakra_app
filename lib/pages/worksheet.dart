@@ -7,7 +7,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../components/todo_list.dart';
 import '../models/db_provider.dart';
-import '../models/sb_db.dart';
 import '../models/task.dart';
 import 'formpage.dart';
 
@@ -18,18 +17,24 @@ class WorkArea extends StatefulWidget {
   State<WorkArea> createState() => _WorkAreaState();
 }
 
+// This Codes are for the main body of the app where tasks
+// and todos are displayed.
+
 class _WorkAreaState extends State<WorkArea> {
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   late StreamSubscription<InternetStatus> _internetSubscription;
 
+  // The internet status is checked on startup
+  // and the Local Todos is displayed.
   @override
   void initState() {
     super.initState();
     _initializeInternetChecker();
-    _loadLocalTodos(); // Load todos from local DB on initialization
+    _loadLocalTodos();
   }
 
+  //Check if app is Connected to the Internet
   Future<void> _initializeInternetChecker() async {
     _internetSubscription =
         InternetConnection().onStatusChange.listen((InternetStatus status) {
@@ -38,8 +43,8 @@ class _WorkAreaState extends State<WorkArea> {
       });
 
       if (_isOnline) {
-        _syncLocalTodosToSupabase();
-        print('Internet connected: syncing local todos with Supabase');
+        //_syncLocalTodosToSupabase();
+        print('Internet connected: Refresh to sync local todos with Supabase');
       } else {
         print('No internet connection');
       }
@@ -63,34 +68,7 @@ class _WorkAreaState extends State<WorkArea> {
     });
   }
 
-  Future<void> _fetchTodos() async {
-    // Fetch local todos
-    final localTodos = await AppDB.instnc.getAllTodo();
-
-    // Fetch todos from Supabase
-    final supabaseTodos = await _fetchTodosFromSupabase();
-    Set<String?> supabaseTodoTitles =
-        supabaseTodos.map((todo) => todo.title).toSet();
-
-    // Identify todos that are only in the local database
-    List<Todo?> todosToUpload = localTodos
-        .where((todo) => !supabaseTodoTitles.contains(todo!.title))
-        .toList();
-
-    // Upload the missing todos to Supabase
-    for (var todo in todosToUpload) {
-      await SupaDB.addtoSB(todo!);
-      print('Uploaded new todo to Supabase: ${todo.title}');
-    }
-
-    // Set the local todo list to the latest data
-    setState(() {
-      _todoList = localTodos;
-    });
-
-    print('Local DB refreshed and synced with Supabase.');
-  }
-
+  // Sync local Todos to the Online database
   Future<void> _syncLocalTodosToSupabase() async {
     // Get only the unsynced todos
     final unsyncedTodos = _todoList.where((todo) => !todo!.isSynced).toList();
@@ -103,9 +81,8 @@ class _WorkAreaState extends State<WorkArea> {
     // Prepare data for upsert
     final upsertData = unsyncedTodos.map((todo) => todo!.toJson()).toList();
 
-    final response = await Supabase.instance.client
-        .from('todoTable')
-        .upsert(upsertData);
+    final response =
+        await Supabase.instance.client.from('todoTable').upsert(upsertData);
 
     if (response.error != null) {
       print("Failed to sync todos: ${response.error!.message}");
@@ -120,21 +97,7 @@ class _WorkAreaState extends State<WorkArea> {
     _loadLocalTodos(); // Refresh local todos list after syncing
   }
 
-
-  Future<List<Todo>> _fetchTodosFromSupabase() async {
-    final response = await Supabase.instance.client.from('todoTable').select();
-
-    final data = response as List<dynamic>?;
-    if (data == null) {
-      print("No data found in Supabase table.");
-      return [];
-    }
-
-    // Map JSON data to Todo objects
-    return data.map((json) => Todo.fromJson(json)).toList();
-  }
-
-  // Toggle status of a todo item and update in local database and Supabase if online
+  // Toggle status of a Task on local databse and online database, if only online
   void _toggleTodoStatus(int index) async {
     final updatedStatus = !_todoList[index]!.status;
     setState(() {
@@ -159,7 +122,7 @@ class _WorkAreaState extends State<WorkArea> {
     }
   }
 
-  // Add new todo to local DB and refresh the list
+  // Creates todos and adds it to the local database
   void _addTodo(Todo newTodo) async {
     await AppDB.instnc.addTodo(newTodo);
     _loadLocalTodos();
@@ -174,7 +137,7 @@ class _WorkAreaState extends State<WorkArea> {
     );
   }
 
-  // Delete todo from local DB and Supabase
+  // Deletes todos from local database and online database, if only online
   void _deleteTodoById(int? id) async {
     await AppDB.instnc.deleteTodoById(id!);
     _loadLocalTodos();
@@ -192,6 +155,7 @@ class _WorkAreaState extends State<WorkArea> {
     }
   }
 
+  // To navigate to the form page to create task
   void _navigateToAddTodoForm() {
     Navigator.push(
       context,
@@ -201,6 +165,7 @@ class _WorkAreaState extends State<WorkArea> {
     );
   }
 
+  // UI build code block:
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
@@ -220,7 +185,9 @@ class _WorkAreaState extends State<WorkArea> {
       body: SafeArea(
         child: Container(
           width: screen.width,
-          decoration: BoxDecoration(
+          decoration:
+              //Background Image block:
+              BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
               image: Image.asset('assets/bg3.png').image,
@@ -244,6 +211,7 @@ class _WorkAreaState extends State<WorkArea> {
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (BuildContext context, index) {
                         return Card(
+                          // Made it so that when you long press on a card, you can edit the tasks
                           margin: const EdgeInsets.only(
                               top: 10, left: 10, right: 10),
                           child: GestureDetector(
@@ -263,6 +231,7 @@ class _WorkAreaState extends State<WorkArea> {
                               );
                             },
                             child: ListTile(
+                              // Edit Card contents here:
                               title: toDolist(
                                 taskName: _todoList[index]!.title,
                                 taskCompleted: _todoList[index]!.status,
