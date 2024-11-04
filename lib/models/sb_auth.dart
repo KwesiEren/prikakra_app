@@ -60,4 +60,21 @@ class SBAuth {
       return "Login failed: User not found or other error";
     }
   }
+
+  // Method to check if a user is logged in
+  Future<bool> isLoggedIn(String email) async {
+    try {
+      // Attempt to fetch the user based on the email
+      final response = await AuthSB.from('user_credentials')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+      // If the response is not null, the user is considered logged in
+      return response != null;
+    } catch (e) {
+      print("Error checking login status: $e");
+      return false; // Return false if there's an error
+    }
+  }
 }

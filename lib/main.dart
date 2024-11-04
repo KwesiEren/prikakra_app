@@ -1,6 +1,5 @@
 import 'package:firebase_test2/models/sb_auth.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
-import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,8 +42,7 @@ class MyApp extends StatelessWidget {
       '/': (context) => const WelcomeScrn(),
       '/login': (context) => const LoginPage(),
       '/signup': (context) => const SignUp(),
-      '/home': (context) => const HomePage(),
-      '/todo_scrn': (context) => const WorkArea(),
+      '/profile': (context) => const ProfilePage(),
     });
   }
 }

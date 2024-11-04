@@ -11,7 +11,8 @@ import '../models/task.dart';
 import 'formpage.dart';
 
 class WorkArea extends StatefulWidget {
-  const WorkArea({super.key});
+  final String userEmail;
+  const WorkArea({required this.userEmail, super.key});
 
   @override
   State<WorkArea> createState() => _WorkAreaState();
@@ -23,6 +24,7 @@ class WorkArea extends StatefulWidget {
 class _WorkAreaState extends State<WorkArea> {
   List<Todo?> _todoList = [];
   bool _isOnline = true;
+  bool isUserInDatabase = false;
   late StreamSubscription<InternetStatus> _internetSubscription;
 
   // The internet status is checked on startup
@@ -30,8 +32,9 @@ class _WorkAreaState extends State<WorkArea> {
   @override
   void initState() {
     super.initState();
-    _initializeInternetChecker();
-    _loadLocalTodos();
+    _initializeInternetChecker(); //Check internet status on init
+    _loadLocalTodos(); // Call all local database task on init
+    _checkUserInDatabase(); // Call user email on init
   }
 
   //Check if app is Connected to the Internet
@@ -48,6 +51,18 @@ class _WorkAreaState extends State<WorkArea> {
       } else {
         print('No internet connection');
       }
+    });
+  }
+
+  Future<void> _checkUserInDatabase() async {
+    await Supabase.instance.client
+        .from('user_credentials')
+        .select()
+        .eq('email', widget.userEmail)
+        .single();
+
+    setState(() {
+      isUserInDatabase = true;
     });
   }
 
@@ -170,18 +185,140 @@ class _WorkAreaState extends State<WorkArea> {
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
     return Scaffold(
+      // APP BAR
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/login');
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
+        automaticallyImplyLeading: false,
         title: const Text('To-Do'),
         centerTitle: true,
         backgroundColor: Colors.greenAccent,
         foregroundColor: Colors.black,
       ),
+
+      //Codes for Drawer begin here
+      endDrawer: Drawer(
+        child: ListView(
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 100,
+                  margin: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        isUserInDatabase
+                            ? widget.userEmail
+                            : 'Loading ...', //Display current logged in user email here.
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                                color: _isOnline
+                                    ? Colors.green
+                                    : Colors
+                                        .grey, //Turns grey to indicate user is not online.
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const Text('Online'),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 40,
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(right: 0),
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('assets/bg2.png'),
+                    radius: 60,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(),
+            const SizedBox(
+              height: 10,
+            ),
+            ListTile(
+              onTap: () {},
+              title: const Text(
+                'Edit User Information',
+                style: TextStyle(
+                  fontSize: 20,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ListTile(
+              onTap: () {},
+              title: const Text(
+                'Statistics',
+                style: TextStyle(
+                  fontSize: 20,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ListTile(
+              onTap: () {},
+              title: const Text(
+                'Terms and Conditions',
+                style: TextStyle(
+                  fontSize: 20,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 200,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 100, right: 90),
+              child: ListTile(
+                onTap: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                title: const Text(
+                  'Log out',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.red,
+                    decoration: TextDecoration.underline,
+                    decorationColor: Colors.red,
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+      //DRAWER ENDS HERE
+
+      //Body Codes Begin Here
       body: SafeArea(
         child: Container(
           width: screen.width,
@@ -256,6 +393,8 @@ class _WorkAreaState extends State<WorkArea> {
           ),
         ),
       ),
+      //BODY ENDS HERE
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

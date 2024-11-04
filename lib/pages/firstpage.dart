@@ -5,6 +5,7 @@ import '../components/glscontainer.dart';
 import '../components/textarea.dart';
 import '../components/tile.dart';
 import '../models/sb_auth.dart';
+import 'worksheet.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,10 +35,11 @@ class _LoginPageState extends State<LoginPage> {
     final email = _emailInput.text;
     final password = _passwordInput.text;
 
-    final response = await _auth.login(email, password);
+    final response = await _auth.login(email!, password!);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         content: Text(response),
         elevation: 30,
         backgroundColor: Colors.green,
@@ -45,8 +47,19 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.startsWith("Login successful")) {
-      Navigator.pushNamed(context, '/todo_scrn');
+      _onLoginSuccess(email);
     }
+  }
+
+  void _onLoginSuccess(String email) {
+    _emailInput.clear(); // Clear email input
+    _passwordInput.clear(); // Clear password input
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkArea(userEmail: email), // Pass email
+      ),
+    );
   }
 
   // UI code block:
@@ -90,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
                   GlassBox(
-                    height: 0.70,
+                    height: 0.55,
                     child: Container(
                       padding: const EdgeInsets.only(left: 45, right: 45),
                       child: Column(

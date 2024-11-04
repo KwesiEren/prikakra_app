@@ -28,7 +28,7 @@ class _SignUpState extends State<SignUp> {
 
     await _auth.signUp(username, email, password);
 
-    Navigator.pushNamed(context, '/todo_scrn');
+    Navigator.pushNamed(context, '/displayTasks');
   }
 
   //UI code for Signup page here:
