@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
 
 import '../components/button.dart';
+import '../models/sb_auth.dart';
+import '../pages/worksheet.dart';
 
 //Welcome Screen, just that lol.
 
-class WelcomeScrn extends StatelessWidget {
+class WelcomeScrn extends StatefulWidget {
   const WelcomeScrn({super.key});
+
+  @override
+  State<WelcomeScrn> createState() => _WelcomeScrnState();
+}
+
+class _WelcomeScrnState extends State<WelcomeScrn> {
+  final _auth = SBAuth();
+
+  Future<void> _checkLoginStatus() async {
+    final isLoggedIn = await _auth.isLoggedIn();
+    if (isLoggedIn) {
+      // Retrieve the logged-in user's email
+      final email = await _auth.getLoggedInUserEmail();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WorkArea(userEmail: email ?? ''), // Pass email
+        ),
+      );
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +82,7 @@ class WelcomeScrn extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/login');
+                _checkLoginStatus();
               },
               child: ButnTyp1(
                   text: 'Next',
@@ -68,7 +93,7 @@ class WelcomeScrn extends StatelessWidget {
             const Column(
               children: [
                 Text(
-                  'Version 2.1',
+                  'Version 2.3',
                   style: TextStyle(color: Color.fromARGB(99, 255, 255, 255)),
                 )
               ],

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../utils/shared_preferences_helper.dart';
 import 'hash_method.dart';
 
 // The Auth codes which handle the login and signup calls to the online database.
@@ -51,7 +52,9 @@ class SBAuth {
 
       //Condition to compare the passwords to test authentication.
       if (hashedInputPassword == storedHashedPassword) {
-        return "Login successful for email: $email";
+        // Save login session to shared preferences
+        await SharedPreferencesHelper.saveUserEmail(email); // Use the helper
+        return "Login successful";
       } else {
         return "Login failed: Incorrect password";
       }
@@ -62,19 +65,16 @@ class SBAuth {
   }
 
   // Method to check if a user is logged in
-  Future<bool> isLoggedIn(String email) async {
-    try {
-      // Attempt to fetch the user based on the email
-      final response = await AuthSB.from('user_credentials')
-          .select('email')
-          .eq('email', email)
-          .single();
+  Future<void> logout() async {
+    // Clear login session using the helper
+    await SharedPreferencesHelper.clearUserSession();
+  }
 
-      // If the response is not null, the user is considered logged in
-      return response != null;
-    } catch (e) {
-      print("Error checking login status: $e");
-      return false; // Return false if there's an error
-    }
+  Future<bool> isLoggedIn() async {
+    return await SharedPreferencesHelper.isUserLoggedIn(); // Use the helper
+  }
+
+  Future<String?> getLoggedInUserEmail() async {
+    return await SharedPreferencesHelper.getUserEmail(); // Use the helper
   }
 }

@@ -7,11 +7,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../components/todo_list.dart';
 import '../models/db_provider.dart';
+import '../models/sb_auth.dart';
 import '../models/task.dart';
 import 'formpage.dart';
 
 class WorkArea extends StatefulWidget {
   final String userEmail;
+
   const WorkArea({required this.userEmail, super.key});
 
   @override
@@ -25,6 +27,8 @@ class _WorkAreaState extends State<WorkArea> {
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   bool isUserInDatabase = false;
+  final auth = SBAuth();
+
   late StreamSubscription<InternetStatus> _internetSubscription;
 
   // The internet status is checked on startup
@@ -296,23 +300,34 @@ class _WorkAreaState extends State<WorkArea> {
             const SizedBox(
               height: 200,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 100, right: 90),
-              child: ListTile(
-                onTap: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-                title: const Text(
-                  'Log out',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.red,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.red,
-                  ),
-                ),
-              ),
-            )
+            FutureBuilder<bool>(
+              future: auth.isLoggedIn(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+
+                if (snapshot.data == true) {
+                  // Show Logout button if the user is logged in
+                  return ListTile(
+                    title: const Text("Logout"),
+                    onTap: () async {
+                      // Add a logout function here to clear session
+                      await auth.logout();
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  );
+                } else {
+                  // Show Login button if the user is not logged in
+                  return ListTile(
+                    title: const Text("Login"),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),

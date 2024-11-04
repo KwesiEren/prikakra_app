@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
     final email = _emailInput.text;
     final password = _passwordInput.text;
 
-    final response = await _auth.login(email!, password!);
+    final response = await _auth.login(email, password);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
