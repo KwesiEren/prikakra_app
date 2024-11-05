@@ -82,6 +82,16 @@ class AppDB {
     );
   }
 
+  Future<void> updateTodoSyncStatus(int? id, bool isSynced) async {
+    final db = await database;
+    await db.update(
+      'todos',
+      {'isSynced': isSynced ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<int> updateTodo(Todo todo) async {
     //Update element in table by ID
     final db = await instnc.database;

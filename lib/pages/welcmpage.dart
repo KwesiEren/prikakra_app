@@ -82,7 +82,14 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
             ),
             GestureDetector(
               onTap: () {
-                _checkLoginStatus();
+                //_checkLoginStatus();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        WorkArea(userEmail: 'Please Sign In'), // Pass email
+                  ),
+                );
               },
               child: ButnTyp1(
                   text: 'Next',

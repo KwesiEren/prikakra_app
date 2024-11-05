@@ -56,11 +56,11 @@ class SBAuth {
         await SharedPreferencesHelper.saveUserEmail(email); // Use the helper
         return "Login successful";
       } else {
-        return "Login failed: Incorrect password";
+        return "Login failed: Incorrect Credentials";
       }
     } catch (e) {
       print("Login Error: $e");
-      return "Login failed: User not found or other error";
+      return "Sorry No Connection";
     }
   }
 
@@ -68,6 +68,7 @@ class SBAuth {
   Future<void> logout() async {
     // Clear login session using the helper
     await SharedPreferencesHelper.clearUserSession();
+    print('user logged out');
   }
 
   Future<bool> isLoggedIn() async {
