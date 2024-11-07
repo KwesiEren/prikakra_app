@@ -7,16 +7,15 @@ import '../models/task.dart';
 import '../models/task_type.dart';
 
 class AddTodoScreen extends StatefulWidget {
+  final String userName;
   final Function(Todo) onTodoAdded;
 
-  const AddTodoScreen({required this.onTodoAdded});
+  const AddTodoScreen(
+      {super.key, required this.userName, required this.onTodoAdded});
 
   @override
   _AddTodoScreenState createState() => _AddTodoScreenState();
 }
-
-// This is the codes for the Form page when
-// you want to create a new task.
 
 class _AddTodoScreenState extends State<AddTodoScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -25,22 +24,23 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   TaskType _taskType = TaskType.today;
   String _user = '';
   String? _team;
-  bool _status = false; // Changed to non-final
-  bool _isSynced = false; // Changed to non-final
+  bool _status = false;
+  bool _isSynced = false;
 
-// This Adds the new task to the online DB
-  Future<void> addtoSB(Todo todo) async {
+  // Function to add the new task to the online DB
+  Future<void> addTaskSB(Todo todo) async {
     await Supabase.instance.client.from('todoTable').insert(todo.toJson());
-    print('Todo uploaded to Supabase');
   }
 
-  // This is the Function to be called when you
-  // press the "Add task" button. This handles
-  // adding the task to the local database and
-  // pushing it to the online database.
-  void _submitForm() {
+  // Function to handle the form submission
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
+      // Set the user to default username if the field is empty
+      if (_user.isEmpty) {
+        _user = widget.userName;
+      }
 
       final newTodo = Todo(
         title: _title,
@@ -53,13 +53,13 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         isSynced: _isSynced,
       );
 
-      addtoSB(newTodo);
+      // Add task to Supabase and handle completion
+      await addTaskSB(newTodo);
 
+      // Call the callback and pop the screen
       widget.onTodoAdded(newTodo);
-      Navigator.pop(context); // Go back after submission
+      Navigator.pop(context);
     }
-    // Honestly I think a better function can be made to tackle this sort of operation but
-    // for now I will work with this.
   }
 
   // UI code block here:
@@ -115,15 +115,12 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 10),
               TextFormField(
-                decoration: const InputDecoration(labelText: 'User'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a user';
-                  }
-                  return null;
-                },
+                decoration: const InputDecoration(
+                  labelText: 'User',
+                  hintText: 'Default Username will be used if empty.',
+                ),
                 onSaved: (value) {
-                  _user = value!;
+                  _user = value ?? widget.userName;
                 },
               ),
               const SizedBox(height: 10),
@@ -134,15 +131,6 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 },
               ),
               const SizedBox(height: 10),
-              /* SwitchListTile(
-                title: const Text('Status'),
-                value: _status,
-                onChanged: (value) {
-                  setState(() {
-                    _status = value;
-                  });
-                },
-              ),*/
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Add Todo'),

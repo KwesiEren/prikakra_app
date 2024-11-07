@@ -52,10 +52,10 @@ class Todo {
   static Todo fromJson(Map<String, dynamic> json) => Todo(
         id: json[idFN] as int?,
         title: json[titleFN] as String,
-        details: json[detailsFN] as String,
+        details: json[detailsFN] as String?,
         taskType: TaskTypeExtn.fromString(json[taskTypeFN] as String),
         user: json[userFN] as String,
-        team: json[teamFN] as String,
+        team: json[teamFN] as String?,
         crtedDate: DateTime.parse(json[crtedDateFN] as String),
         status: json[statusFN] == 1,
         isSynced: json[isSyncedFN] == 1, // Read sync status

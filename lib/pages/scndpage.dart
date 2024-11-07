@@ -1,3 +1,4 @@
+import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
 
 import '../components/button.dart';
@@ -28,7 +29,23 @@ class _SignUpState extends State<SignUp> {
 
     await _auth.signUp(username, email, password);
 
-    Navigator.pushNamed(context, '/displayTasks');
+    _onSignupSuccess(username, email, password);
+  }
+
+  void _onSignupSuccess(String username, String email, String password) {
+    _userinput.clear();
+    _emailinput.clear();
+    _passwrdinput.clear();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkArea(
+          userEmail: email,
+          userPassword: password,
+          userName: username,
+        ), // Pass email
+      ),
+    );
   }
 
   //UI code for Signup page here:

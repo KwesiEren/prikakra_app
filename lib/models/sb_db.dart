@@ -8,12 +8,7 @@ import 'task.dart';
 class SupaDB {
   static Future<void> addtoSB(Todo todo) async {
     // push entry into the table
-    final response =
-        await Supabase.instance.client.from('todoTable').insert(todo.toJson());
-
-    if (response.error != null) {
-      throw Exception('Failed to add todo: ${response.error!.message}');
-    }
+    await Supabase.instance.client.from('todoTable').insert(todo.toJson());
   }
 
   static Future<List<Todo?>> getAllSB() async {
@@ -26,6 +21,15 @@ class SupaDB {
     return todos.map((json) => Todo.fromJson(json)).toList();
   }
 
+  static Future<void> updateIdSB(Todo todo) async {
+    //Updates element in the table by ID
+    final syncId = {'id': todo.id};
+    await Supabase.instance.client
+        .from('todoTable')
+        .update(syncId)
+        .eq('title', todo.title);
+  }
+
   static Future<void> updateSB(Todo todo) async {
     //Updates element in the table by ID
     if (todo.id == null) {
@@ -36,6 +40,12 @@ class SupaDB {
         .from('todoTable')
         .update(todo.toJson())
         .eq('id', todo.id!);
+  }
+
+  static Future<void> updateSyncSB() async {
+    //Updates element in the table by ID
+    final sync = {'isSynced': true};
+    await Supabase.instance.client.from('todoTable').update(sync);
   }
 
   static Future<void> deleteSB(int id) async {

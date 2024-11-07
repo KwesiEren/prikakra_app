@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../components/button.dart';
-import '../models/sb_auth.dart';
-import '../pages/worksheet.dart';
+import 'worksheet.dart';
 
 //Welcome Screen, just that lol.
 
@@ -14,23 +13,23 @@ class WelcomeScrn extends StatefulWidget {
 }
 
 class _WelcomeScrnState extends State<WelcomeScrn> {
-  final _auth = SBAuth();
-
-  Future<void> _checkLoginStatus() async {
+  /*Future<void> _checkLoginStatus() async {
     final isLoggedIn = await _auth.isLoggedIn();
     if (isLoggedIn) {
       // Retrieve the logged-in user's email
       final email = await _auth.getLoggedInUserEmail();
+      final password = await _auth.getLoggedInUserPassword();
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => WorkArea(userEmail: email ?? ''), // Pass email
+          builder: (context) => WorkArea(userEmail: email ?? '', userPassword: password??'',), // Pass email
         ),
       );
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +85,11 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        WorkArea(userEmail: 'Please Sign In'), // Pass email
+                    builder: (context) => WorkArea(
+                      userEmail: '',
+                      userPassword: '',
+                      userName: '',
+                    ), // Pass email
                   ),
                 );
               },

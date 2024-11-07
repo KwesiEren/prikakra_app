@@ -25,6 +25,10 @@ class SBAuth {
         'salt': salt, // Ensure salt is saved
       });
 
+      await SharedPreferencesHelper.saveUsername(user);
+      await SharedPreferencesHelper.saveUserEmail(email);
+      await SharedPreferencesHelper.saveUserPassword(password);
+
       if (response.error != null) {
         throw response.error!;
       }
@@ -42,18 +46,21 @@ class SBAuth {
       //To retrieve the parameters including the salt value
       // from the table.
       final resp = await AuthSB.from('user_credentials')
-          .select('password, salt')
+          .select('password, salt, user')
           .eq('email', email)
           .single();
 
       final storedHashedPassword = resp['password'];
       final salt = resp['salt'];
       final hashedInputPassword = hasher.hashPassword(password, salt);
+      final storeUser = resp['user'];
 
       //Condition to compare the passwords to test authentication.
       if (hashedInputPassword == storedHashedPassword) {
         // Save login session to shared preferences
-        await SharedPreferencesHelper.saveUserEmail(email); // Use the helper
+        await SharedPreferencesHelper.saveUserEmail(email);
+        await SharedPreferencesHelper.saveUserPassword(password);
+        await SharedPreferencesHelper.saveUsername(storeUser); // Use the helper
         return "Login successful";
       } else {
         return "Login failed: Incorrect Credentials";
@@ -75,7 +82,15 @@ class SBAuth {
     return await SharedPreferencesHelper.isUserLoggedIn(); // Use the helper
   }
 
+  Future<String?> getLoggedInUserName() async {
+    return await SharedPreferencesHelper.getUsername(); // Use the helper
+  }
+
   Future<String?> getLoggedInUserEmail() async {
     return await SharedPreferencesHelper.getUserEmail(); // Use the helper
+  }
+
+  Future<String?> getLoggedInUserPassword() async {
+    return await SharedPreferencesHelper.getUserPassword(); // Use the helper
   }
 }

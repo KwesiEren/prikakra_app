@@ -14,8 +14,14 @@ import '../models/task.dart';
 import 'formpage.dart';
 
 class WorkArea extends StatefulWidget {
+  String userName;
   final String userEmail;
-  const WorkArea({required this.userEmail, super.key});
+  final String userPassword;
+  WorkArea(
+      {required this.userEmail,
+      required this.userPassword,
+      super.key,
+      required this.userName});
 
   @override
   State<WorkArea> createState() => _WorkAreaState();
@@ -26,10 +32,12 @@ class WorkArea extends StatefulWidget {
 
 class _WorkAreaState extends State<WorkArea> {
   DateTime? _lastPressedAt;
+  Timer? _timer;
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   bool isUserInDatabase = false;
   final _auth = SBAuth();
+
   late StreamSubscription<InternetStatus> _internetSubscription;
 
   // The internet status is checked on startup
@@ -41,6 +49,17 @@ class _WorkAreaState extends State<WorkArea> {
 
     _loadLocalTodos(); // Call all local database task on init
     _checkUserInDatabase(); // Call user email on init
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _runPeriodicFunction();
+    });
+    _syncLocalTodosToSupabase();
+  }
+
+  //To create a auto sync every period of 5s:
+  void _runPeriodicFunction() async {
+    // Place your logic here
+    await _fetchMissingTodosFromSupabase();
+    print('Function is running every 30 seconds');
   }
 
   //Check if app is Connected to the Internet
@@ -52,8 +71,6 @@ class _WorkAreaState extends State<WorkArea> {
       });
 
       if (_isOnline) {
-        //_syncLocalTodosToSupabase();
-        _fetchMissingTodosFromSupabase();
         print('Internet connected: Refresh to sync local todos with Supabase');
       } else {
         print('No internet connection');
@@ -77,6 +94,7 @@ class _WorkAreaState extends State<WorkArea> {
   @override
   void dispose() {
     _internetSubscription.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -123,6 +141,7 @@ class _WorkAreaState extends State<WorkArea> {
 
       for (var todo in missingTodos) {
         await AppDB.instnc.addTodo(todo);
+        //await SupaDB.updateSyncSB();
       }
     } else {
       throw Exception("Unexpected response format from Supabase");
@@ -138,16 +157,19 @@ class _WorkAreaState extends State<WorkArea> {
 
   // Sync local Todos to the Online database
   Future<void> _syncLocalTodosToSupabase() async {
-    // Get only the unsynced todos
     final unsyncedTodos = _todoList.where((todo) => !todo!.isSynced).toList();
 
     if (unsyncedTodos.isEmpty) {
       print("No unsynced todos to upload.");
-      return; // No unsynced todos
+      return;
     }
 
-    // Prepare data for upsert
-    final upsertData = unsyncedTodos.map((todo) => todo!.toJson()).toList();
+    // Prepare data for upsert with isSynced set to true for Supabase
+    final upsertData = unsyncedTodos.map((todo) {
+      final json = todo!.toJson();
+      json['isSynced'] = true; // Set isSynced to true for Supabase
+      return json;
+    }).toList();
 
     final response =
         await Supabase.instance.client.from('todoTable').upsert(upsertData);
@@ -155,14 +177,17 @@ class _WorkAreaState extends State<WorkArea> {
     if (response.error != null) {
       print("Failed to sync todos: ${response.error!.message}");
     } else {
-      // Mark todos as synced
+      // Mark todos as synced in the local database
       for (var todo in unsyncedTodos) {
-        todo!.isSynced = true; // Mark as synced
+        todo!.isSynced = true;
+        await AppDB.instnc.updateTodoSyncStatus(todo.id!, true);
       }
       print("Successfully synced todos.");
     }
 
-    _loadLocalTodos(); // Refresh local todos list after syncing
+    setState(() {
+      _loadLocalTodos(); // Refresh local todos list after syncing
+    });
   }
 
   // Toggle status of a Task on local databse and online database, if only online
@@ -238,7 +263,10 @@ class _WorkAreaState extends State<WorkArea> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddTodoScreen(onTodoAdded: _addTodo),
+        builder: (context) => AddTodoScreen(
+          onTodoAdded: _addTodo,
+          userName: widget.userName,
+        ),
       ),
     );
   }
@@ -285,8 +313,8 @@ class _WorkAreaState extends State<WorkArea> {
                       children: [
                         Text(
                           isUserInDatabase
-                              ? widget.userEmail
-                              : 'Loading ...', //Display current logged in user email here.
+                              ? widget.userName
+                              : 'Please Sign In', //Display current logged in user email here.
                           style: const TextStyle(
                             fontSize: 15,
                           ),
@@ -310,15 +338,15 @@ class _WorkAreaState extends State<WorkArea> {
                               width: 5,
                             ),
                             const Text('Online'),
-                            const SizedBox(
+                            /*const SizedBox(
                               width: 20,
                             ),
                             GestureDetector(
                               onTap: () async {
                                 await _fetchMissingTodosFromSupabase();
                               },
-                              child: Icon(Icons.refresh_outlined),
-                            )
+                              child: const Icon(Icons.refresh),
+                            )*/
                           ],
                         )
                       ],
@@ -426,7 +454,7 @@ class _WorkAreaState extends State<WorkArea> {
                         style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white10,
+                          color: Colors.white70,
                         ),
                       )
                     : ListView.builder(
