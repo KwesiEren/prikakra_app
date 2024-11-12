@@ -62,7 +62,7 @@ class _SignUpState extends State<SignUp> {
               //Background image here:
               const BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage('assets/bg1.png'), fit: BoxFit.cover)),
+                      image: AssetImage('assets/bg1.jpg'), fit: BoxFit.cover)),
           child: SafeArea(
             child: Container(
               width: screen.width,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../components/button.dart';
 import '../components/glscontainer.dart';
@@ -64,8 +65,14 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> loginAct() async {
     final email = _emailInput.text;
     final password = _passwordInput.text;
+    final username = await Supabase.instance.client
+        .from('user_credentials')
+        .select('user')
+        .eq('email', email)
+        .single();
 
     final response = await _auth.login(email, password);
+    final catchUser = username['user'];
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -77,11 +84,11 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.startsWith("Login successful")) {
-      _onLoginSuccess(email, password);
+      _onLoginSuccess(email, password, catchUser);
     }
   }
 
-  void _onLoginSuccess(String email, String password) {
+  void _onLoginSuccess(String email, String password, catchUser) {
     _emailInput.clear(); // Clear email input
     _passwordInput.clear(); // Clear password input
     Navigator.push(
@@ -90,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         builder: (context) => WorkArea(
           userEmail: email,
           userPassword: password,
-          userName: '',
+          userName: catchUser,
         ), // Pass email
       ),
     );
@@ -109,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
               //Background Image here:
               const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/bg1.png'),
+              image: AssetImage('assets/bg1.jpg'),
               fit: BoxFit.cover,
             ),
           ),

@@ -40,9 +40,10 @@ dependencies:
   supabase_flutter: 2.8.0
   crypto:
   connectivity_plus:
-  get:
   internet_connection_checker_plus:
-  flutter_styled_toast:
+  uuid:
+
+
 
 
 dev_dependencies:
@@ -97,3 +98,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+

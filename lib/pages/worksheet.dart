@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_test2/components/button2.dart';
+import 'package:firebase_test2/components/button3.dart';
 import 'package:firebase_test2/models/sb_db.dart';
 import 'package:firebase_test2/pages/updtetaskpage.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,7 @@ class _WorkAreaState extends State<WorkArea> {
   Timer? _timer;
   List<Todo?> _todoList = [];
   bool _isOnline = true;
+  bool isLoading = true;
   bool isUserInDatabase = false;
   final _auth = SBAuth();
 
@@ -46,7 +49,7 @@ class _WorkAreaState extends State<WorkArea> {
   void initState() {
     super.initState();
     _initializeInternetChecker(); //Check internet status on init
-
+    //loadData();
     _loadLocalTodos(); // Call all local database task on init
     _checkUserInDatabase(); // Call user email on init
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
@@ -59,7 +62,7 @@ class _WorkAreaState extends State<WorkArea> {
   void _runPeriodicFunction() async {
     // Place your logic here
     await _fetchMissingTodosFromSupabase();
-    print('Function is running every 30 seconds');
+    debugPrint('Sync is running every 30 seconds');
   }
 
   //Check if app is Connected to the Internet
@@ -71,9 +74,10 @@ class _WorkAreaState extends State<WorkArea> {
       });
 
       if (_isOnline) {
-        print('Internet connected: Refresh to sync local todos with Supabase');
+        debugPrint(
+            'Internet connected: Refresh to sync local todos with Supabase');
       } else {
-        print('No internet connection');
+        debugPrint('No internet connection');
       }
     });
   }
@@ -99,14 +103,29 @@ class _WorkAreaState extends State<WorkArea> {
   }
 
   // Fetch all todos from local database
-  Future<void> _loadLocalTodos() async {
-    final todos = await AppDB.instnc.getAllTodo();
+  Future<List> _loadLocalTodos() async {
     setState(() {
-      _todoList = todos.map((todo) {
-        todo?.isSynced = false; // Mark as unsynced when loaded
-        return todo;
-      }).toList();
+      isLoading = true;
     });
+    try {
+      final todos = await AppDB.instnc.getAllTodo();
+      setState(() {
+        _todoList = todos.map((todo) {
+          todo?.isSynced = false; // Mark as unsynced when loaded
+          return todo;
+        }).toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+    return _todoList;
+  }
+
+  Future<void> loadData() async {
+    await _loadLocalTodos();
   }
 
   //Fetch missing todos from Supabase:
@@ -147,7 +166,7 @@ class _WorkAreaState extends State<WorkArea> {
       throw Exception("Unexpected response format from Supabase");
     }
 
-    print("Missing todos have been successfully pulled from Supabase.");
+    debugPrint("Missing todos have been successfully pulled from Supabase.");
 
     // Refresh the UI with the latest todos
     setState(() {
@@ -160,7 +179,7 @@ class _WorkAreaState extends State<WorkArea> {
     final unsyncedTodos = _todoList.where((todo) => !todo!.isSynced).toList();
 
     if (unsyncedTodos.isEmpty) {
-      print("No unsynced todos to upload.");
+      debugPrint("No unsynced todos to upload.");
       return;
     }
 
@@ -175,14 +194,14 @@ class _WorkAreaState extends State<WorkArea> {
         await Supabase.instance.client.from('todoTable').upsert(upsertData);
 
     if (response.error != null) {
-      print("Failed to sync todos: ${response.error!.message}");
+      debugPrint("Failed to sync todos: ${response.error!.message}");
     } else {
       // Mark todos as synced in the local database
       for (var todo in unsyncedTodos) {
         todo!.isSynced = true;
         await AppDB.instnc.updateTodoSyncStatus(todo.id!, true);
       }
-      print("Successfully synced todos.");
+      debugPrint("Successfully synced todos.");
     }
 
     setState(() {
@@ -206,10 +225,10 @@ class _WorkAreaState extends State<WorkArea> {
               'title', _todoList[index]!.title);
 
       if (response.error != null) {
-        print(
+        debugPrint(
             "Failed to update status in Supabase: ${response.error!.message}");
       } else {
-        print(
+        debugPrint(
             "Successfully updated status for Todo: ${_todoList[index]!.title}");
       }
     }
@@ -241,9 +260,10 @@ class _WorkAreaState extends State<WorkArea> {
           .delete()
           .eq('id', id);
       if (response.error != null) {
-        print("Failed to delete from Supabase: ${response.error!.message}");
+        debugPrint(
+            "Failed to delete from Supabase: ${response.error!.message}");
       } else {
-        print("Successfully deleted todo from Supabase");
+        debugPrint("Successfully deleted todo from Supabase");
       }
     }
   }
@@ -283,7 +303,7 @@ class _WorkAreaState extends State<WorkArea> {
           // If the last press was more than 2 seconds ago, reset the timer
           _lastPressedAt = now;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Press back again to exit')),
+            const SnackBar(content: Text('Press back again to exit')),
           );
           return false; // Prevent the default back button behavior
         }
@@ -300,29 +320,35 @@ class _WorkAreaState extends State<WorkArea> {
         ),
 
         //Codes for Drawer begin here
-        endDrawer: Drawer(
-          child: ListView(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    height: 100,
-                    margin: const EdgeInsets.all(8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          isUserInDatabase
-                              ? widget.userName
-                              : 'Please Sign In', //Display current logged in user email here.
-                          style: const TextStyle(
-                            fontSize: 15,
-                          ),
+        endDrawer: SafeArea(
+          child: Drawer(
+            child: ListView(
+              children: [
+                Container(
+                  margin: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const CircleAvatar(
+                        backgroundImage: AssetImage('assets/bg2.jpg'),
+                        radius: 80,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        isUserInDatabase
+                            ? widget.userName
+                            : 'Please Sign In', //Display current logged in user email here.
+                        style: const TextStyle(
+                          fontSize: 20,
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
                               width: 10,
@@ -338,97 +364,64 @@ class _WorkAreaState extends State<WorkArea> {
                               width: 5,
                             ),
                             const Text('Online'),
-                            /*const SizedBox(
-                              width: 20,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                await _fetchMissingTodosFromSupabase();
-                              },
-                              child: const Icon(Icons.refresh),
-                            )*/
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(right: 0),
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage('assets/bg2.png'),
-                      radius: 60,
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(),
-              const SizedBox(
-                height: 10,
-              ),
-              ListTile(
-                onTap: () {},
-                title: const Text(
-                  'Edit User Information',
-                  style: TextStyle(
-                    fontSize: 20,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.black87,
+                          ]),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ListTile(
-                onTap: () {},
-                title: const Text(
-                  'Statistics',
-                  style: TextStyle(
-                    fontSize: 20,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.black87,
-                  ),
+                const SizedBox(
+                  height: 10,
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ListTile(
-                onTap: () {},
-                title: const Text(
-                  'Terms and Conditions',
-                  style: TextStyle(
-                    fontSize: 20,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.black87,
-                  ),
+                const Divider(),
+                const SizedBox(
+                  height: 10,
                 ),
-              ),
-              const SizedBox(
-                height: 200,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 100, right: 90),
-                child: ListTile(
+                ListTile(
+                  onTap: () {},
+                  title: ButnTyp2(
+                      text: 'Edit User Information',
+                      size: 20,
+                      btnColor: Colors.greenAccent,
+                      borderRadius: 5),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ListTile(
+                  onTap: () {},
+                  title: ButnTyp2(
+                      text: 'Statistics',
+                      size: 20,
+                      btnColor: Colors.greenAccent,
+                      borderRadius: 5),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ListTile(
+                  onTap: () {},
+                  title: ButnTyp2(
+                      text: 'Terms and Conditions',
+                      size: 20,
+                      btnColor: Colors.greenAccent,
+                      borderRadius: 5),
+                ),
+                const SizedBox(
+                  height: 100,
+                ),
+                GestureDetector(
                   onTap: () {
                     _closesession();
                     //Navigator.pushNamed(context, '/login');
                   },
-                  title: Text(
-                    isUserInDatabase ? 'Log out' : 'Log in',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.red,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.red,
-                    ),
-                  ),
-                ),
-              )
-            ],
+                  //isUserInDatabase ? 'Log out' : 'Log in',
+                  child: ButnTyp3(
+                      text: isUserInDatabase ? 'Log out' : 'Log in',
+                      size: 20,
+                      btnColor: Colors.red,
+                      borderRadius: 5),
+                )
+              ],
+            ),
           ),
         ),
         //DRAWER ENDS HERE
@@ -439,71 +432,73 @@ class _WorkAreaState extends State<WorkArea> {
             width: screen.width,
             decoration:
                 //Background Image block:
-                BoxDecoration(
+                const BoxDecoration(
               image: DecorationImage(
-                fit: BoxFit.cover,
-                image: Image.asset('assets/bg3.png').image,
-              ),
+                  fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
             ),
             child: Center(
               child: RefreshIndicator(
                 onRefresh: _syncLocalTodosToSupabase,
-                child: _todoList.isEmpty
-                    ? const Text(
-                        'The list is empty!',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white70,
-                        ),
+                child: isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
                       )
-                    : ListView.builder(
-                        itemCount: _todoList.length,
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (BuildContext context, index) {
-                          return Card(
-                            // Made it so that when you long press on a card, you can edit the tasks
-                            margin: const EdgeInsets.only(
-                                top: 10, left: 10, right: 10),
-                            child: GestureDetector(
-                              onLongPress: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => EditTodoScreen(
-                                      todo: _todoList[index],
-                                      onTodoUpdated: (updatedTodo) {
-                                        setState(() {
-                                          _todoList[index] = updatedTodo;
-                                        });
-                                        _syncLocalTodosToSupabase();
-                                      },
+                    : _todoList.isEmpty
+                        ? const Text(
+                            'The list is empty!',
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: _todoList.length,
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (BuildContext context, index) {
+                              return Card(
+                                // Made it so that when you long press on a card, you can edit the tasks
+                                margin: const EdgeInsets.only(
+                                    top: 10, left: 10, right: 10),
+                                child: GestureDetector(
+                                  onLongPress: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => EditTodoScreen(
+                                          todo: _todoList[index],
+                                          onTodoUpdated: (updatedTodo) {
+                                            setState(() {
+                                              _todoList[index] = updatedTodo;
+                                            });
+                                            _syncLocalTodosToSupabase();
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: ListTile(
+                                    // Edit Card contents here:
+                                    title: toDolist(
+                                      taskName: _todoList[index]!.title,
+                                      taskCompleted: _todoList[index]!.status,
+                                      onChanged: (value) =>
+                                          _toggleTodoStatus(index),
+                                      taskDetail: _todoList[index]!.details,
+                                    ),
+                                    subtitle: Text(_todoList[index]!.user),
+                                    trailing: IconButton(
+                                      onPressed: () =>
+                                          _deleteTodoById(_todoList[index]!.id),
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              child: ListTile(
-                                // Edit Card contents here:
-                                title: toDolist(
-                                  taskName: _todoList[index]!.title,
-                                  taskCompleted: _todoList[index]!.status,
-                                  onChanged: (value) =>
-                                      _toggleTodoStatus(index),
-                                  taskDetail: _todoList[index]!.details,
                                 ),
-                                subtitle: Text(_todoList[index]!.user),
-                                trailing: IconButton(
-                                  onPressed: () =>
-                                      _deleteTodoById(_todoList[index]!.id),
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                              );
+                            },
+                          ),
               ),
             ),
           ),

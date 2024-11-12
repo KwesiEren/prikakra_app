@@ -24,7 +24,7 @@ class AppDB {
   Future _create(Database db, int version) async {
     await db.execute('''
     CREATE TABLE $tableName(
-      $idFN INTEGER PRIMARY KEY AUTOINCREMENT,
+      $idFN TEXT PRIMARY KEY AUTOINCREMENT,
       $titleFN TEXT NOT NULL,
       $detailsFN TEXT,
       $taskTypeFN TEXT NOT NULL,

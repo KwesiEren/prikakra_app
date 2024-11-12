@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../components/button.dart';
 import 'worksheet.dart';
 
 //Welcome Screen, just that lol.
@@ -13,6 +14,32 @@ class WelcomeScrn extends StatefulWidget {
 }
 
 class _WelcomeScrnState extends State<WelcomeScrn> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _timer = Timer.periodic(const Duration(seconds: 8), (timer) {
+      _runPeriodicFunction();
+      timer.cancel();
+    });
+    super.initState();
+  }
+
+  void _runPeriodicFunction() async {
+    // Place your logic here
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkArea(
+          userEmail: '',
+          userPassword: '',
+          userName: '',
+        ), // Pass email
+      ),
+    );
+    print('Splash Screen');
+  }
   /*Future<void> _checkLoginStatus() async {
     final isLoggedIn = await _auth.isLoggedIn();
     if (isLoggedIn) {
@@ -39,12 +66,10 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
         width: screen.width,
         decoration:
             //Background Image here:
-            BoxDecoration(
+            const BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
-            image: Image.asset(
-              'assets/bg1.png',
-            ).image,
+            image: AssetImage('assets/bg1.jpg'),
           ),
         ),
         child: Column(
@@ -53,10 +78,6 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
           children: [
             const SizedBox(
               height: 30,
-            ),
-            const CircleAvatar(
-              backgroundImage: AssetImage('assets/bg2.png'),
-              radius: 80,
             ),
             Container(
               child: const Column(
@@ -78,26 +99,6 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
                   )
                 ],
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                //_checkLoginStatus();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WorkArea(
-                      userEmail: '',
-                      userPassword: '',
-                      userName: '',
-                    ), // Pass email
-                  ),
-                );
-              },
-              child: ButnTyp1(
-                  text: 'Next',
-                  size: 25,
-                  btnColor: Colors.green,
-                  borderRadius: 30),
             ),
             const Column(
               children: [
