@@ -55,13 +55,13 @@ class _WorkAreaState extends State<WorkArea> {
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _runPeriodicFunction();
     });
-    _syncLocalTodosToSupabase();
   }
 
   //To create a auto sync every period of 5s:
   void _runPeriodicFunction() async {
     // Place your logic here
     await _fetchMissingTodosFromSupabase();
+    await _syncLocalTodosToSupabase();
     debugPrint('Sync is running every 30 seconds');
   }
 
@@ -216,7 +216,8 @@ class _WorkAreaState extends State<WorkArea> {
       _todoList[index]!.status = updatedStatus;
     });
 
-    await AppDB.instnc.updateTodoStatus(_todoList[index]!.id, updatedStatus);
+    await AppDB.instnc
+        .updateTodoStatus(_todoList[index]!.id as String, updatedStatus);
 
     if (_isOnline) {
       final response = await Supabase.instance.client
@@ -238,19 +239,19 @@ class _WorkAreaState extends State<WorkArea> {
   void _addTodo(Todo newTodo) async {
     await AppDB.instnc.addTodo(newTodo);
     _loadLocalTodos();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Todo added successfully!',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.amberAccent,
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text(
+    //       'Todo added successfully!',
+    //       style: TextStyle(color: Colors.white),
+    //     ),
+    //     backgroundColor: Colors.amberAccent,
+    //   ),
+    // );
   }
 
   // Deletes todos from local database and online database, if only online
-  void _deleteTodoById(int? id) async {
+  void _deleteTodoById(String? id) async {
     await AppDB.instnc.deleteTodoById(id!);
     _loadLocalTodos();
 

@@ -1,3 +1,5 @@
+import 'package:uuid/uuid.dart';
+
 import 'task_type.dart';
 
 // Database table field notations
@@ -25,9 +27,9 @@ const List<String> taskColumns = [
   isSyncedFN, // Include in columns
 ];
 
-//Task model to describe needed parameters the object task takes
+// Task model to describe needed parameters the object task takes
 class Todo {
-  final int? id;
+  final String? id; // Updated to String for UUID support
   final String title;
   final String? details;
   final DateTime crtedDate;
@@ -38,7 +40,7 @@ class Todo {
   bool isSynced; // New field to track sync status
 
   Todo({
-    this.id,
+    String? id,
     required this.title,
     this.details,
     required this.user,
@@ -47,10 +49,10 @@ class Todo {
     required this.crtedDate,
     required this.status,
     this.isSynced = false, // Default value for new todos
-  });
+  }) : id = id ?? Uuid().v4(); // Assign UUID if id is null
 
   static Todo fromJson(Map<String, dynamic> json) => Todo(
-        id: json[idFN] as int?,
+        id: json[idFN] as String?, // Expecting id to be a String
         title: json[titleFN] as String,
         details: json[detailsFN] as String?,
         taskType: TaskTypeExtn.fromString(json[taskTypeFN] as String),
@@ -63,6 +65,7 @@ class Todo {
 
   Map<String, dynamic> toJson() {
     final data = {
+      idFN: id, // Ensure id is included as a String
       titleFN: title,
       detailsFN: details,
       taskTypeFN: taskType.name,
@@ -72,13 +75,11 @@ class Todo {
       statusFN: status ? 1 : 0,
       isSyncedFN: isSynced ? 1 : 0, // Write sync status
     };
-    if (id != null)
-      data[idFN] = id; // Include id only if it is not null (for updates)
     return data;
   }
 
   Todo copyWith({
-    int? id,
+    String? id, // Changed to String
     String? title,
     String? details,
     TaskType? taskType,

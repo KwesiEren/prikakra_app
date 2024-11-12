@@ -24,7 +24,7 @@ class AppDB {
   Future _create(Database db, int version) async {
     await db.execute('''
     CREATE TABLE $tableName(
-      $idFN TEXT PRIMARY KEY AUTOINCREMENT,
+      $idFN TEXT PRIMARY KEY,
       $titleFN TEXT NOT NULL,
       $detailsFN TEXT,
       $taskTypeFN TEXT NOT NULL,
@@ -54,46 +54,47 @@ class AppDB {
   //Creating CRUD operations:
 
   Future<Todo> addTodo(Todo todo) async {
-    //Insert entry into todoTable
+    // Insert entry into todoTable
     final db = await instnc.database;
-    final id = await db.insert(tableName, todo.toJson());
+    await db.insert(tableName, todo.toJson());
 
-    print("Inserted Todo with ID: $id");
+    print("Inserted Todo with ID: ${todo.id}");
 
-    return todo.copyWith(id: id);
+    return todo;
   }
 
   Future<List<Todo?>> getAllTodo() async {
-    //Fetch all elements in table
+    // Fetch all elements in table
     final db = await instnc.database;
     final result = await db.query(tableName, orderBy: "$idFN ASC");
 
     return result.map((json) => Todo.fromJson(json)).toList();
   }
 
-  Future<void> updateTodoStatus(int? id, bool status) async {
-    //Update element in status column by ID
+  Future<void> updateTodoStatus(String id, bool status) async {
+    // Update element in status column by ID
     final db = await database;
     await db.update(
       tableName,
-      {'$statusFN': status ? 1 : 0}, // Convert boolean to int for SQLite
+      {statusFN: status ? 1 : 0}, // Convert boolean to int for SQLite
       where: '$idFN = ?',
       whereArgs: [id],
     );
   }
 
-  Future<void> updateTodoSyncStatus(int? id, bool isSynced) async {
+  Future<void> updateTodoSyncStatus(String id, bool isSynced) async {
+    // Update sync status by ID
     final db = await database;
     await db.update(
-      'todos',
-      {'isSynced': isSynced ? 1 : 0},
-      where: 'id = ?',
+      tableName,
+      {isSyncedFN: isSynced ? 1 : 0},
+      where: '$idFN = ?',
       whereArgs: [id],
     );
   }
 
   Future<int> updateTodo(Todo todo) async {
-    //Update element in table by ID
+    // Update element in table by ID
     final db = await instnc.database;
     final result = await db.update(
       tableName,
@@ -105,8 +106,8 @@ class AppDB {
     return result;
   }
 
-  Future<int> deleteTodoById(int id) async {
-    //Delete element in table by ID
+  Future<int> deleteTodoById(String id) async {
+    // Delete element in table by ID
     final db = await instnc.database;
     final result = await db.delete(
       tableName,
@@ -118,7 +119,7 @@ class AppDB {
   }
 
   Future<void> closeDB() async {
-    //Close Database
+    // Close Database
     final db = await instnc.database;
     return db.close();
   }

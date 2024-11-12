@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/task.dart';
 import '../models/task_type.dart';
@@ -29,7 +31,30 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
 
   // Function to add the new task to the online DB
   Future<void> addTaskSB(Todo todo) async {
-    await Supabase.instance.client.from('todoTable').insert(todo.toJson());
+    try {
+      await Supabase.instance.client.from('todoTable').insert(todo.toJson());
+    } catch (error) {
+      _showToast('Error adding Todo');
+      print('Error adding task: $error');
+    }
+  }
+
+  // Function to show a toast message
+  void _showToast(String message) {
+    showToast(
+      message,
+      context: context,
+      backgroundColor: Colors.greenAccent,
+    );
+  }
+
+  // Function to clear form fields
+  void _clearForm() {
+    _title = '';
+    _details = '';
+    _user = '';
+    _team = '';
+    setState(() {});
   }
 
   // Function to handle the form submission
@@ -42,7 +67,9 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         _user = widget.userName;
       }
 
+      final uuid = Uuid(); // Generate a new UUID for the task ID
       final newTodo = Todo(
+        id: uuid.v4(),
         title: _title,
         details: _details,
         user: _user,
@@ -56,9 +83,15 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       // Add task to Supabase and handle completion
       await addTaskSB(newTodo);
 
+      // Show a success toast
+      _showToast('Todo added successfully');
+
       // Call the callback and pop the screen
       widget.onTodoAdded(newTodo);
       Navigator.pop(context);
+
+      // Clear the form after submission
+      _clearForm();
     }
   }
 

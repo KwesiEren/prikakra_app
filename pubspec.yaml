@@ -42,6 +42,7 @@ dependencies:
   connectivity_plus:
   internet_connection_checker_plus:
   uuid:
+  flutter_styled_toast:
 
 
 
