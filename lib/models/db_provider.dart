@@ -82,6 +82,17 @@ class AppDB {
     );
   }
 
+  Future<List<Todo?>> getUserTodos(String userId) async {
+    final db = await instnc.database;
+    final result = await db.query(
+      tableName,
+      where: "$userFN = ?",
+      whereArgs: [userId],
+      orderBy: "$idFN ASC",
+    );
+    return result.map((json) => Todo.fromJson(json)).toList();
+  }
+
   Future<void> updateTodoSyncStatus(String id, bool isSynced) async {
     // Update sync status by ID
     final db = await database;

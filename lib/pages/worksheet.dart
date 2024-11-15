@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:firebase_test2/components/button2.dart';
 import 'package:firebase_test2/components/button3.dart';
 import 'package:firebase_test2/models/sb_db.dart';
-import 'package:firebase_test2/pages/updtetaskpage.dart';
+import 'package:firebase_test2/pages/all_task_page.dart';
+import 'package:firebase_test2/pages/auth_user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../components/todo_list.dart';
 import '../models/db_provider.dart';
 import '../models/sb_auth.dart';
 import '../models/task.dart';
@@ -50,11 +50,11 @@ class _WorkAreaState extends State<WorkArea> {
     super.initState();
     _initializeInternetChecker(); //Check internet status on init
     //loadData();
-    _loadLocalTodos(); // Call all local database task on init
+    // _loadLocalTodos(); // Call all local database task on init
     _checkUserInDatabase(); // Call user email on init
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _runPeriodicFunction();
-    });
+    // _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    //   _runPeriodicFunction();
+    // });
   }
 
   //To create a auto sync every period of 5s:
@@ -296,222 +296,233 @@ class _WorkAreaState extends State<WorkArea> {
   @override
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
-    return WillPopScope(
-      onWillPop: () async {
-        final now = DateTime.now();
-        if (_lastPressedAt == null ||
-            now.difference(_lastPressedAt!) > Duration(seconds: 2)) {
-          // If the last press was more than 2 seconds ago, reset the timer
-          _lastPressedAt = now;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Press back again to exit')),
-          );
-          return false; // Prevent the default back button behavior
-        }
-        return exit(0); // Exit the app
-      },
-      child: Scaffold(
-        // APP BAR
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('To-Do'),
-          centerTitle: true,
-          backgroundColor: Colors.greenAccent,
-          foregroundColor: Colors.black,
-        ),
-
-        //Codes for Drawer begin here
-        endDrawer: SafeArea(
-          child: Drawer(
-            child: ListView(
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const CircleAvatar(
-                        backgroundImage: AssetImage('assets/bg2.jpg'),
-                        radius: 80,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        isUserInDatabase
-                            ? widget.userName
-                            : 'Please Sign In', //Display current logged in user email here.
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                  color: _isOnline
-                                      ? Colors.green
-                                      : Colors
-                                          .grey, //Turns grey to indicate user is not online.
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            const Text('Online'),
-                          ]),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Divider(),
-                const SizedBox(
-                  height: 10,
-                ),
-                ListTile(
-                  onTap: () {},
-                  title: ButnTyp2(
-                      text: 'Edit User Information',
-                      size: 20,
-                      btnColor: Colors.greenAccent,
-                      borderRadius: 5),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ListTile(
-                  onTap: () {},
-                  title: ButnTyp2(
-                      text: 'Statistics',
-                      size: 20,
-                      btnColor: Colors.greenAccent,
-                      borderRadius: 5),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ListTile(
-                  onTap: () {},
-                  title: ButnTyp2(
-                      text: 'Terms and Conditions',
-                      size: 20,
-                      btnColor: Colors.greenAccent,
-                      borderRadius: 5),
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    _closesession();
-                    //Navigator.pushNamed(context, '/login');
-                  },
-                  //isUserInDatabase ? 'Log out' : 'Log in',
-                  child: ButnTyp3(
-                      text: isUserInDatabase ? 'Log out' : 'Log in',
-                      size: 20,
-                      btnColor: Colors.red,
-                      borderRadius: 5),
-                )
-              ],
-            ),
+    return DefaultTabController(
+      length: 2,
+      child: WillPopScope(
+        onWillPop: () async {
+          final now = DateTime.now();
+          if (_lastPressedAt == null ||
+              now.difference(_lastPressedAt!) > Duration(seconds: 2)) {
+            // If the last press was more than 2 seconds ago, reset the timer
+            _lastPressedAt = now;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Press back again to exit')),
+            );
+            return false; // Prevent the default back button behavior
+          }
+          return exit(0); // Exit the app
+        },
+        child: Scaffold(
+          // APP BAR
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text('To-Do'),
+            bottom: const TabBar(tabs: [
+              Tab(text: 'Task'),
+              Tab(
+                text: 'Todo',
+              )
+            ]),
+            centerTitle: true,
+            backgroundColor: Colors.greenAccent,
+            foregroundColor: Colors.black,
           ),
-        ),
-        //DRAWER ENDS HERE
 
-        //Body Codes Begin Here
-        body: SafeArea(
-          child: Container(
-            width: screen.width,
-            decoration:
-                //Background Image block:
-                const BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
-            ),
-            child: Center(
-              child: RefreshIndicator(
-                onRefresh: _syncLocalTodosToSupabase,
-                child: isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : _todoList.isEmpty
-                        ? const Text(
-                            'The list is empty!',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white70,
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: _todoList.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (BuildContext context, index) {
-                              return Card(
-                                // Made it so that when you long press on a card, you can edit the tasks
-                                margin: const EdgeInsets.only(
-                                    top: 10, left: 10, right: 10),
-                                child: GestureDetector(
-                                  onLongPress: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => EditTodoScreen(
-                                          todo: _todoList[index],
-                                          onTodoUpdated: (updatedTodo) {
-                                            setState(() {
-                                              _todoList[index] = updatedTodo;
-                                            });
-                                            _syncLocalTodosToSupabase();
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: ListTile(
-                                    // Edit Card contents here:
-                                    title: toDolist(
-                                      taskName: _todoList[index]!.title,
-                                      taskCompleted: _todoList[index]!.status,
-                                      onChanged: (value) =>
-                                          _toggleTodoStatus(index),
-                                      taskDetail: _todoList[index]!.details,
-                                    ),
-                                    subtitle: Text(_todoList[index]!.user),
-                                    trailing: IconButton(
-                                      onPressed: () =>
-                                          _deleteTodoById(_todoList[index]!.id),
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+          //Codes for Drawer begin here
+          endDrawer: SafeArea(
+            child: Drawer(
+              child: ListView(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const CircleAvatar(
+                          backgroundImage: AssetImage('assets/bg2.jpg'),
+                          radius: 80,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          isUserInDatabase
+                              ? widget.userName
+                              : 'Please Sign In', //Display current logged in user email here.
+                          style: const TextStyle(
+                            fontSize: 20,
                           ),
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                    color: _isOnline
+                                        ? Colors.green
+                                        : Colors
+                                            .grey, //Turns grey to indicate user is not online.
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              const Text('Online'),
+                            ]),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ListTile(
+                    onTap: () {},
+                    title: ButnTyp2(
+                        text: 'Edit User Information',
+                        size: 20,
+                        btnColor: Colors.greenAccent,
+                        borderRadius: 5),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ListTile(
+                    onTap: () {},
+                    title: ButnTyp2(
+                        text: 'Statistics',
+                        size: 20,
+                        btnColor: Colors.greenAccent,
+                        borderRadius: 5),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ListTile(
+                    onTap: () {},
+                    title: ButnTyp2(
+                        text: 'Terms and Conditions',
+                        size: 20,
+                        btnColor: Colors.greenAccent,
+                        borderRadius: 5),
+                  ),
+                  const SizedBox(
+                    height: 100,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _closesession();
+                      //Navigator.pushNamed(context, '/login');
+                    },
+                    //isUserInDatabase ? 'Log out' : 'Log in',
+                    child: ButnTyp3(
+                        text: isUserInDatabase ? 'Log out' : 'Log in',
+                        size: 20,
+                        btnColor: Colors.red,
+                        borderRadius: 5),
+                  )
+                ],
               ),
             ),
           ),
-        ),
-        //BODY ENDS HERE
+          //DRAWER ENDS HERE
 
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          hoverColor: Colors.greenAccent,
-          onPressed: _navigateToAddTodoForm,
-          child: const Icon(Icons.add),
+          //Body Codes Begin Here
+          body: const SafeArea(
+              child: TabBarView(children: [OnlyUserTask(), AllTask()])),
+          // body: SafeArea(
+          //   child: Container(
+          //     width: screen.width,
+          //     decoration:
+          //         //Background Image block:
+          //         const BoxDecoration(
+          //       image: DecorationImage(
+          //           fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
+          //     ),
+          //     child: Center(
+          //       child: RefreshIndicator(
+          //         onRefresh: _syncLocalTodosToSupabase,
+          //         child: isLoading
+          //             ? const Center(
+          //                 child: CircularProgressIndicator(),
+          //               )
+          //             : _todoList.isEmpty
+          //                 ? const Text(
+          //                     'The list is empty!',
+          //                     style: TextStyle(
+          //                       fontSize: 25,
+          //                       fontWeight: FontWeight.bold,
+          //                       color: Colors.white70,
+          //                     ),
+          //                   )
+          //                 : ListView.builder(
+          //                     itemCount: _todoList.length,
+          //                     physics: const BouncingScrollPhysics(),
+          //                     itemBuilder: (BuildContext context, index) {
+          //                       return Card(
+          //                         // Made it so that when you long press on a card, you can edit the tasks
+          //                         margin: const EdgeInsets.only(
+          //                             top: 10, left: 10, right: 10),
+          //                         child: GestureDetector(
+          //                           onLongPress: () {
+          //                             Navigator.of(context).push(
+          //                               MaterialPageRoute(
+          //                                 builder: (context) => EditTodoScreen(
+          //                                   todo: _todoList[index],
+          //                                   onTodoUpdated: (updatedTodo) {
+          //                                     setState(() {
+          //                                       _todoList[index] = updatedTodo;
+          //                                     });
+          //                                     _syncLocalTodosToSupabase();
+          //                                   },
+          //                                 ),
+          //                               ),
+          //                             );
+          //                           },
+          //                           child: ListTile(
+          //                             // Edit Card contents here:
+          //                             title: toDolist(
+          //                               taskName: _todoList[index]!.title,
+          //                               taskCompleted: _todoList[index]!.status,
+          //                               onChanged: (value) =>
+          //                                   _toggleTodoStatus(index),
+          //                               taskDetail: _todoList[index]!.details,
+          //                             ),
+          //                             subtitle: Text(_todoList[index]!.user),
+          //                             trailing: IconButton(
+          //                               onPressed: () =>
+          //                                   _deleteTodoById(_todoList[index]!.id),
+          //                               icon: const Icon(
+          //                                 Icons.delete,
+          //                                 color: Colors.red,
+          //                               ),
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       );
+          //                     },
+          //                   ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          //BODY ENDS HERE
+
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            hoverColor: Colors.greenAccent,
+            onPressed: _navigateToAddTodoForm,
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );
