@@ -33,6 +33,8 @@ class _toDolistState extends State<toDolist> {
         child: Row(
           children: [
             Checkbox(
+              activeColor: const Color.fromRGBO(19, 62, 135, 1),
+              checkColor: Colors.white,
               value: widget.taskCompleted,
               onChanged: widget.onChanged,
               side: const BorderSide(color: Colors.black),

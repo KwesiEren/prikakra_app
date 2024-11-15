@@ -38,6 +38,7 @@ class _WorkAreaState extends State<WorkArea> {
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   bool isLoading = true;
+  bool isLoggedIn = false; // Mock authentication status
   bool isUserInDatabase = false;
   final _auth = SBAuth();
 
@@ -49,20 +50,8 @@ class _WorkAreaState extends State<WorkArea> {
   void initState() {
     super.initState();
     _initializeInternetChecker(); //Check internet status on init
-    //loadData();
-    // _loadLocalTodos(); // Call all local database task on init
+    _checkLoginStatus(); // Check Login status
     _checkUserInDatabase(); // Call user email on init
-    // _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-    //   _runPeriodicFunction();
-    // });
-  }
-
-  //To create a auto sync every period of 5s:
-  void _runPeriodicFunction() async {
-    // Place your logic here
-    await _fetchMissingTodosFromSupabase();
-    await _syncLocalTodosToSupabase();
-    debugPrint('Sync is running every 30 seconds');
   }
 
   //Check if app is Connected to the Internet
@@ -92,6 +81,14 @@ class _WorkAreaState extends State<WorkArea> {
 
     setState(() {
       isUserInDatabase = response != null;
+    });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Replace this with your actual login status check
+    final isSignedIn = await _auth.getLoggedInUserName() != null;
+    setState(() {
+      isLoggedIn = isSignedIn;
     });
   }
 
@@ -210,30 +207,6 @@ class _WorkAreaState extends State<WorkArea> {
   }
 
   // Toggle status of a Task on local databse and online database, if only online
-  void _toggleTodoStatus(int index) async {
-    final updatedStatus = !_todoList[index]!.status;
-    setState(() {
-      _todoList[index]!.status = updatedStatus;
-    });
-
-    await AppDB.instnc
-        .updateTodoStatus(_todoList[index]!.id as String, updatedStatus);
-
-    if (_isOnline) {
-      final response = await Supabase.instance.client
-          .from('todoTable')
-          .update({'status': updatedStatus ? 1 : 0}).eq(
-              'title', _todoList[index]!.title);
-
-      if (response.error != null) {
-        debugPrint(
-            "Failed to update status in Supabase: ${response.error!.message}");
-      } else {
-        debugPrint(
-            "Successfully updated status for Todo: ${_todoList[index]!.title}");
-      }
-    }
-  }
 
   // Creates todos and adds it to the local database
   void _addTodo(Todo newTodo) async {
@@ -248,25 +221,6 @@ class _WorkAreaState extends State<WorkArea> {
     //     backgroundColor: Colors.amberAccent,
     //   ),
     // );
-  }
-
-  // Deletes todos from local database and online database, if only online
-  void _deleteTodoById(String? id) async {
-    await AppDB.instnc.deleteTodoById(id!);
-    _loadLocalTodos();
-
-    if (_isOnline) {
-      final response = await Supabase.instance.client
-          .from('todoTable')
-          .delete()
-          .eq('id', id);
-      if (response.error != null) {
-        debugPrint(
-            "Failed to delete from Supabase: ${response.error!.message}");
-      } else {
-        debugPrint("Successfully deleted todo from Supabase");
-      }
-    }
   }
 
   Future<void> _closesession() async {
@@ -297,7 +251,7 @@ class _WorkAreaState extends State<WorkArea> {
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
     return DefaultTabController(
-      length: 2,
+      length: isLoggedIn ? 2 : 1,
       child: WillPopScope(
         onWillPop: () async {
           final now = DateTime.now();
@@ -317,15 +271,23 @@ class _WorkAreaState extends State<WorkArea> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: const Text('To-Do'),
-            bottom: const TabBar(tabs: [
-              Tab(text: 'Task'),
-              Tab(
-                text: 'Todo',
-              )
+            bottom: TabBar(tabs: [
+              const Tab(
+                  child: Text(
+                'My Todo',
+                style: TextStyle(color: Colors.white),
+              )),
+              if (isLoggedIn)
+                const Tab(
+                  child: Text(
+                    'All Tasks',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
             ]),
             centerTitle: true,
-            backgroundColor: Colors.greenAccent,
-            foregroundColor: Colors.black,
+            backgroundColor: const Color.fromRGBO(19, 62, 135, 1),
+            foregroundColor: Colors.white,
           ),
 
           //Codes for Drawer begin here
@@ -351,7 +313,7 @@ class _WorkAreaState extends State<WorkArea> {
                         Text(
                           isUserInDatabase
                               ? widget.userName
-                              : 'Please Sign In', //Display current logged in user email here.
+                              : 'Guest User', //Display current logged in user email here.
                           style: const TextStyle(
                             fontSize: 20,
                           ),
@@ -382,16 +344,17 @@ class _WorkAreaState extends State<WorkArea> {
                   ),
                   const Divider(),
                   const SizedBox(
-                    height: 10,
+                    height: 50,
                   ),
-                  ListTile(
-                    onTap: () {},
-                    title: ButnTyp2(
-                        text: 'Edit User Information',
-                        size: 20,
-                        btnColor: Colors.greenAccent,
-                        borderRadius: 5),
-                  ),
+                  if (isLoggedIn)
+                    ListTile(
+                      onTap: () {},
+                      title: ButnTyp2(
+                          text: 'Edit User Information',
+                          size: 20,
+                          btnColor: const Color.fromRGBO(19, 62, 135, 10),
+                          borderRadius: 5),
+                    ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -400,7 +363,7 @@ class _WorkAreaState extends State<WorkArea> {
                     title: ButnTyp2(
                         text: 'Statistics',
                         size: 20,
-                        btnColor: Colors.greenAccent,
+                        btnColor: const Color.fromRGBO(19, 62, 135, 10),
                         borderRadius: 5),
                   ),
                   const SizedBox(
@@ -411,24 +374,31 @@ class _WorkAreaState extends State<WorkArea> {
                     title: ButnTyp2(
                         text: 'Terms and Conditions',
                         size: 20,
-                        btnColor: Colors.greenAccent,
+                        btnColor: const Color.fromRGBO(19, 62, 135, 10),
                         borderRadius: 5),
                   ),
                   const SizedBox(
-                    height: 100,
+                    height: 120,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      _closesession();
-                      //Navigator.pushNamed(context, '/login');
-                    },
-                    //isUserInDatabase ? 'Log out' : 'Log in',
-                    child: ButnTyp3(
-                        text: isUserInDatabase ? 'Log out' : 'Log in',
-                        size: 20,
-                        btnColor: Colors.red,
-                        borderRadius: 5),
-                  )
+                  ListTile(
+                    onTap: () {},
+                    title: GestureDetector(
+                      onTap: () {
+                        _closesession();
+                        //Navigator.pushNamed(context, '/login');
+                      },
+                      //isUserInDatabase ? 'Log out' : 'Log in',
+                      child: ButnTyp3(
+                          text: isUserInDatabase ? 'Log out' : 'Log in',
+                          size: 20,
+                          btnColor: Colors.redAccent,
+                          borderRadius: 5),
+                    ),
+                  ),
+                  // Container(
+                  //   color: Colors.greenAccent,
+                  //   height: screen.height * 0.03,
+                  // )
                 ],
               ),
             ),
@@ -436,90 +406,26 @@ class _WorkAreaState extends State<WorkArea> {
           //DRAWER ENDS HERE
 
           //Body Codes Begin Here
-          body: const SafeArea(
-              child: TabBarView(children: [OnlyUserTask(), AllTask()])),
-          // body: SafeArea(
-          //   child: Container(
-          //     width: screen.width,
-          //     decoration:
-          //         //Background Image block:
-          //         const BoxDecoration(
-          //       image: DecorationImage(
-          //           fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
-          //     ),
-          //     child: Center(
-          //       child: RefreshIndicator(
-          //         onRefresh: _syncLocalTodosToSupabase,
-          //         child: isLoading
-          //             ? const Center(
-          //                 child: CircularProgressIndicator(),
-          //               )
-          //             : _todoList.isEmpty
-          //                 ? const Text(
-          //                     'The list is empty!',
-          //                     style: TextStyle(
-          //                       fontSize: 25,
-          //                       fontWeight: FontWeight.bold,
-          //                       color: Colors.white70,
-          //                     ),
-          //                   )
-          //                 : ListView.builder(
-          //                     itemCount: _todoList.length,
-          //                     physics: const BouncingScrollPhysics(),
-          //                     itemBuilder: (BuildContext context, index) {
-          //                       return Card(
-          //                         // Made it so that when you long press on a card, you can edit the tasks
-          //                         margin: const EdgeInsets.only(
-          //                             top: 10, left: 10, right: 10),
-          //                         child: GestureDetector(
-          //                           onLongPress: () {
-          //                             Navigator.of(context).push(
-          //                               MaterialPageRoute(
-          //                                 builder: (context) => EditTodoScreen(
-          //                                   todo: _todoList[index],
-          //                                   onTodoUpdated: (updatedTodo) {
-          //                                     setState(() {
-          //                                       _todoList[index] = updatedTodo;
-          //                                     });
-          //                                     _syncLocalTodosToSupabase();
-          //                                   },
-          //                                 ),
-          //                               ),
-          //                             );
-          //                           },
-          //                           child: ListTile(
-          //                             // Edit Card contents here:
-          //                             title: toDolist(
-          //                               taskName: _todoList[index]!.title,
-          //                               taskCompleted: _todoList[index]!.status,
-          //                               onChanged: (value) =>
-          //                                   _toggleTodoStatus(index),
-          //                               taskDetail: _todoList[index]!.details,
-          //                             ),
-          //                             subtitle: Text(_todoList[index]!.user),
-          //                             trailing: IconButton(
-          //                               onPressed: () =>
-          //                                   _deleteTodoById(_todoList[index]!.id),
-          //                               icon: const Icon(
-          //                                 Icons.delete,
-          //                                 color: Colors.red,
-          //                               ),
-          //                             ),
-          //                           ),
-          //                         ),
-          //                       );
-          //                     },
-          //                   ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          body: SafeArea(
+              child: Container(
+                  width: screen.width,
+                  decoration:
+                      //Background Image block:
+                      const BoxDecoration(
+                          color: Color.fromRGBO(243, 243, 224, 1)
+                          // image: DecorationImage(
+                          //     fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
+                          ),
+                  child: TabBarView(children: [
+                    if (isLoggedIn) const OnlyUserTask(),
+                    if (isLoggedIn) const AllTask()
+                  ]))),
           //BODY ENDS HERE
 
           floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            hoverColor: Colors.greenAccent,
+            backgroundColor: const Color.fromRGBO(19, 62, 135, 1),
+            foregroundColor: Colors.white,
+            hoverColor: Colors.white70,
             onPressed: _navigateToAddTodoForm,
             child: const Icon(Icons.add),
           ),

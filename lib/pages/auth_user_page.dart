@@ -219,83 +219,80 @@ class _OnlyUserTaskState extends State<OnlyUserTask> {
 
   @override
   Widget build(BuildContext context) {
-    var screen = MediaQuery.of(context).size;
     return Center(
-      child: SafeArea(
-        child: Container(
-          width: screen.width,
-          decoration:
-              //Background Image block:
-              const BoxDecoration(
-            image: DecorationImage(
-                fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
-          ),
-          child: Center(
-            child: RefreshIndicator(
-              onRefresh: _syncLocalTodosToSupabase,
-              child: isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : _todoList.isEmpty
-                      ? const Text(
-                          'The list is empty!',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white70,
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: _todoList.length,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (BuildContext context, index) {
-                            return Card(
-                              // Made it so that when you long press on a card, you can edit the tasks
-                              margin: const EdgeInsets.only(
-                                  top: 10, left: 10, right: 10),
-                              child: GestureDetector(
-                                onLongPress: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => EditTodoScreen(
-                                        todo: _todoList[index],
-                                        onTodoUpdated: (updatedTodo) {
-                                          setState(() {
-                                            _todoList[index] = updatedTodo;
-                                          });
-                                          _syncLocalTodosToSupabase();
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: ListTile(
-                                  // Edit Card contents here:
-                                  title: toDolist(
-                                    taskName: _todoList[index]!.title,
-                                    taskCompleted: _todoList[index]!.status,
-                                    onChanged: (value) =>
-                                        _toggleTodoStatus(index),
-                                    taskDetail: _todoList[index]!.details,
-                                  ),
-                                  subtitle: Text(_todoList[index]!.user),
-                                  trailing: IconButton(
-                                    onPressed: () =>
-                                        _deleteTodoById(_todoList[index]!.id),
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                  ),
+      child: RefreshIndicator(
+        onRefresh: _syncLocalTodosToSupabase,
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _todoList.isEmpty
+                ? const Text(
+                    'The list is empty!',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _todoList.length,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (BuildContext context, index) {
+                      return Card(
+                        // Made it so that when you long press on a card, you can edit the tasks
+                        margin:
+                            const EdgeInsets.only(top: 10, left: 10, right: 10),
+                        child: GestureDetector(
+                          onLongPress: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditTodoScreen(
+                                  todo: _todoList[index],
+                                  onTodoUpdated: (updatedTodo) {
+                                    setState(() {
+                                      _todoList[index] = updatedTodo;
+                                    });
+                                    _syncLocalTodosToSupabase();
+                                  },
                                 ),
                               ),
                             );
                           },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: const Color.fromRGBO(203, 220, 235, 1),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    offset: Offset(0, 3),
+                                    blurRadius: 6,
+                                  )
+                                ]),
+                            child: ListTile(
+                              // Edit Card contents here:
+                              title: toDolist(
+                                taskName: _todoList[index]!.title,
+                                taskCompleted: _todoList[index]!.status,
+                                onChanged: (value) => _toggleTodoStatus(index),
+                                taskDetail: _todoList[index]!.details,
+                              ),
+                              subtitle: Text(_todoList[index]!.user),
+                              trailing: IconButton(
+                                onPressed: () =>
+                                    _deleteTodoById(_todoList[index]!.id),
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-            ),
-          ),
-        ),
+                      );
+                    },
+                  ),
       ),
     );
   }

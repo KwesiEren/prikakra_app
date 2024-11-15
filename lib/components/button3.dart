@@ -33,8 +33,8 @@ class ButnTyp3 extends StatelessWidget {
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,
-            offset: Offset(0, 3),
-            blurRadius: 3,
+            offset: Offset(0, 0),
+            blurRadius: 0,
           ),
         ],
       ),

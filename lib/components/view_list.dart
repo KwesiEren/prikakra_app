@@ -34,7 +34,7 @@ class _ViewTaskState extends State<ViewTask> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 30,
+                  fontSize: 20,
                 ),
               ),
               const SizedBox(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/db_provider.dart';
-import '../models/sb_auth.dart';
 import '../models/sb_db.dart';
 import '../models/task.dart';
 
@@ -21,7 +20,6 @@ class _AllTaskState extends State<AllTask> {
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   bool isLoading = true;
-  final _auth = SBAuth();
 
   void initState() {
     super.initState();
@@ -200,53 +198,52 @@ class _AllTaskState extends State<AllTask> {
   Widget build(BuildContext context) {
     var screen = MediaQuery.of(context).size;
     return Center(
-      child: SafeArea(
-        child: Container(
-          width: screen.width,
-          decoration:
-              //Background Image block:
-              const BoxDecoration(
-            image: DecorationImage(
-                fit: BoxFit.cover, image: AssetImage('assets/bg3.jpg')),
-          ),
-          child: Center(
-            child: RefreshIndicator(
-              onRefresh: _syncLocalTodosToSupabase,
-              child: isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : _todoList.isEmpty
-                      ? const Text(
-                          'The list is empty!',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white70,
+      child: RefreshIndicator(
+        onRefresh: _syncLocalTodosToSupabase,
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _todoList.isEmpty
+                ? const Text(
+                    'The list is empty!',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _todoList.length,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (BuildContext context, index) {
+                      return Card(
+                        // Made it so that when you long press on a card, you can edit the tasks
+                        margin:
+                            const EdgeInsets.only(top: 10, left: 10, right: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: const Color.fromRGBO(203, 220, 235, 1),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 3),
+                                  blurRadius: 6,
+                                )
+                              ]),
+                          child: ListTile(
+                            // Edit Card contents here:
+                            title: ViewTask(
+                              taskName: _todoList[index]!.title,
+                              taskDetail: _todoList[index]!.details,
+                            ),
+                            subtitle: Text(_todoList[index]!.user),
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: _todoList.length,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (BuildContext context, index) {
-                            return Card(
-                              // Made it so that when you long press on a card, you can edit the tasks
-                              margin: const EdgeInsets.only(
-                                  top: 10, left: 10, right: 10),
-                              child: ListTile(
-                                // Edit Card contents here:
-                                title: ViewTask(
-                                  taskName: _todoList[index]!.title,
-                                  taskDetail: _todoList[index]!.details,
-                                ),
-                                subtitle: Text(_todoList[index]!.user),
-                              ),
-                            );
-                          },
                         ),
-            ),
-          ),
-        ),
+                      );
+                    },
+                  ),
       ),
     );
   }
