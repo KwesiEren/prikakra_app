@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/db_provider.dart';
-import 'pages/firstpage.dart';
 import 'pages/home.dart';
-import 'pages/scndpage.dart';
+import 'pages/login&signup/firstpage.dart';
+import 'pages/login&signup/scndpage.dart';
 
 // Okay so to get it out there I am not good at explaining
 // stuff but I will try my best to give you clarity on the apps codes

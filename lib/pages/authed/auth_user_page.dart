@@ -1,31 +1,35 @@
 import 'dart:async';
 
-import 'package:firebase_test2/components/view_list.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/db_provider.dart';
-import '../models/sb_db.dart';
-import '../models/task.dart';
+import '../../components/todo_list.dart';
+import '../../models/db_provider.dart';
+import '../../models/sb_auth.dart';
+import '../../models/sb_db.dart';
+import '../../models/task.dart';
+import '../updtetaskpage.dart';
 
-class AllTask extends StatefulWidget {
-  const AllTask({super.key});
+class OnlyUserTask extends StatefulWidget {
+  const OnlyUserTask({super.key});
 
   @override
-  State<AllTask> createState() => _AllTaskState();
+  State<OnlyUserTask> createState() => _OnlyUserTaskState();
 }
 
-class _AllTaskState extends State<AllTask> {
+class _OnlyUserTaskState extends State<OnlyUserTask> {
   Timer? _timer;
   List<Todo?> _todoList = [];
   bool _isOnline = true;
   bool isLoading = true;
+  final _auth = SBAuth();
 
   void initState() {
     super.initState();
     // _initializeInternetChecker(); //Check internet status on init
     //loadData();
-    _loadLocalTodos(); // Call all local database task on init
+    //_loadLocalTodos();
+    _loadUserTodos(); // Call all local database task on init
     // _checkUserInDatabase(); // Call user email on init
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _runPeriodicFunction();
@@ -39,26 +43,45 @@ class _AllTaskState extends State<AllTask> {
     debugPrint('Sync is running every 30 seconds');
   }
 
-  //Fetch all todos from local database
-  Future<List> _loadLocalTodos() async {
+  // Fetch all todos from local database
+  // Future<List> _loadLocalTodos() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   try {
+  //     final todos = await AppDB.instnc.getAllTodo();
+  //     setState(() {
+  //       _todoList = todos.map((todo) {
+  //         todo?.isSynced = false; // Mark as unsynced when loaded
+  //         return todo;
+  //       }).toList();
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  //   return _todoList;
+  // }
+
+  Future<void> _loadUserTodos() async {
     setState(() {
       isLoading = true;
     });
     try {
-      final todos = await AppDB.instnc.getAllTodo();
+      final userId = await _auth.getLoggedInUserName();
+      final tasks = await AppDB.instnc.getUserTodos(userId!);
       setState(() {
-        _todoList = todos.map((todo) {
-          todo?.isSynced = false; // Mark as unsynced when loaded
-          return todo;
-        }).toList();
+        _todoList = tasks;
         isLoading = false;
       });
     } catch (e) {
       setState(() {
         isLoading = false;
       });
+      debugPrint("Error loading user todos: $e");
     }
-    return _todoList;
   }
 
   //Fetch missing todos from Supabase:
@@ -79,8 +102,8 @@ class _AllTaskState extends State<AllTask> {
       }).toList();
 
       // Add missing todos to the local database
-      for (var task in missingTodos) {
-        await AppDB.instnc.addTodo(task as Todo);
+      for (var todo in missingTodos) {
+        await AppDB.instnc.addTodo(todo);
       }
     } else if (response is List<Todo>) {
       // If response is already a list of Todo objects, use it directly
@@ -103,7 +126,7 @@ class _AllTaskState extends State<AllTask> {
 
     // Refresh the UI with the latest todos
     setState(() {
-      _loadLocalTodos();
+      _loadUserTodos();
     });
   }
 
@@ -138,7 +161,7 @@ class _AllTaskState extends State<AllTask> {
     }
 
     setState(() {
-      _loadLocalTodos(); // Refresh local todos list after syncing
+      _loadUserTodos(); // Refresh local todos list after syncing
     });
   }
 
@@ -171,7 +194,7 @@ class _AllTaskState extends State<AllTask> {
   // Deletes todos from local database and online database, if only online
   void _deleteTodoById(String? id) async {
     await AppDB.instnc.deleteTodoById(id!);
-    _loadLocalTodos();
+    _loadUserTodos();
 
     if (_isOnline) {
       final response = await Supabase.instance.client
@@ -196,7 +219,6 @@ class _AllTaskState extends State<AllTask> {
 
   @override
   Widget build(BuildContext context) {
-    var screen = MediaQuery.of(context).size;
     return Center(
       child: RefreshIndicator(
         onRefresh: _syncLocalTodosToSupabase,
@@ -221,24 +243,51 @@ class _AllTaskState extends State<AllTask> {
                         // Made it so that when you long press on a card, you can edit the tasks
                         margin:
                             const EdgeInsets.only(top: 10, left: 10, right: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: const Color.fromRGBO(203, 220, 235, 1),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  offset: Offset(0, 3),
-                                  blurRadius: 6,
-                                )
-                              ]),
-                          child: ListTile(
-                            // Edit Card contents here:
-                            title: ViewTask(
-                              taskName: _todoList[index]!.title,
-                              taskDetail: _todoList[index]!.details,
+                        child: GestureDetector(
+                          onLongPress: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditTodoScreen(
+                                  todo: _todoList[index],
+                                  onTodoUpdated: (updatedTodo) {
+                                    setState(() {
+                                      _todoList[index] = updatedTodo;
+                                    });
+                                    _syncLocalTodosToSupabase();
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: const Color.fromRGBO(203, 220, 235, 1),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    offset: Offset(0, 3),
+                                    blurRadius: 6,
+                                  )
+                                ]),
+                            child: ListTile(
+                              // Edit Card contents here:
+                              title: toDolist(
+                                taskName: _todoList[index]!.title,
+                                taskCompleted: _todoList[index]!.status,
+                                onChanged: (value) => _toggleTodoStatus(index),
+                                taskDetail: _todoList[index]!.details,
+                              ),
+                              subtitle: Text(_todoList[index]!.user),
+                              trailing: IconButton(
+                                onPressed: () =>
+                                    _deleteTodoById(_todoList[index]!.id),
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                              ),
                             ),
-                            subtitle: Text(_todoList[index]!.user),
                           ),
                         ),
                       );

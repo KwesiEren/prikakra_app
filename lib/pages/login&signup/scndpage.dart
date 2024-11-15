@@ -1,10 +1,10 @@
 import 'package:firebase_test2/pages/worksheet.dart';
 import 'package:flutter/material.dart';
 
-import '../components/button.dart';
-import '../components/glscontainer.dart';
-import '../components/textarea.dart';
-import '../models/sb_auth.dart';
+import '../../components/button.dart';
+import '../../components/glscontainer.dart';
+import '../../components/textarea.dart';
+import '../../models/sb_auth.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});

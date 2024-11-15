@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../components/button.dart';
-import '../components/glscontainer.dart';
-import '../components/textarea.dart';
-import '../components/tile.dart';
-import '../models/sb_auth.dart';
-import 'worksheet.dart';
+import '../../components/button.dart';
+import '../../components/glscontainer.dart';
+import '../../components/textarea.dart';
+import '../../components/tile.dart';
+import '../../models/sb_auth.dart';
+import '../worksheet.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
