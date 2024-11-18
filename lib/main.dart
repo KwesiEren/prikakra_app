@@ -1,4 +1,5 @@
 import 'package:firebase_test2/models/sb_auth.dart';
+import 'package:firebase_test2/pages/unauthed/guestview_page.dart';
 import 'package:firebase_test2/pages/welcmpage.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(debugShowCheckedModeBanner: false, routes: {
       //Navigation controls: just add pages class and label.
       '/': (context) => const WelcomeScrn(),
+      '/guest': (context) => const GuestviewPage(),
       '/login': (context) => const LoginPage(),
       '/signup': (context) => const SignUp(),
       '/profile': (context) => const ProfilePage(),

@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'worksheet.dart';
-
 //Welcome Screen, just that lol.
 
 class WelcomeScrn extends StatefulWidget {
@@ -28,17 +26,18 @@ class _WelcomeScrnState extends State<WelcomeScrn> {
 
   void _runPeriodicFunction() async {
     // Place your logic here
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WorkArea(
-          userEmail: '',
-          userPassword: '',
-          userName: '',
-        ), // Pass email
-      ),
-    );
-    print('Splash Screen');
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => WorkArea(
+    //       userEmail: '',
+    //       userPassword: '',
+    //       userName: '',
+    //     ), // Pass email
+    //   ),
+    // );
+    Navigator.pushReplacementNamed(context, '/guest');
+    debugPrint('Splash Screen');
   }
   /*Future<void> _checkLoginStatus() async {
     final isLoggedIn = await _auth.isLoggedIn();

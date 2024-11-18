@@ -230,7 +230,7 @@ class _WorkAreaState extends State<WorkArea> {
         isUserInDatabase = false;
       });
     }
-    Navigator.pushNamed(context, '/login');
+    Navigator.pushNamed(context, '/guest');
   }
 
   // To navigate to the form page to create task
@@ -381,19 +381,14 @@ class _WorkAreaState extends State<WorkArea> {
                     height: 120,
                   ),
                   ListTile(
-                    onTap: () {},
-                    title: GestureDetector(
-                      onTap: () {
-                        _closesession();
-                        //Navigator.pushNamed(context, '/login');
-                      },
-                      //isUserInDatabase ? 'Log out' : 'Log in',
-                      child: ButnTyp3(
-                          text: isUserInDatabase ? 'Log out' : 'Log in',
-                          size: 20,
-                          btnColor: Colors.redAccent,
-                          borderRadius: 5),
-                    ),
+                    onTap: () {
+                      _closesession();
+                    },
+                    title: ButnTyp3(
+                        text: isUserInDatabase ? 'Log out' : 'Log in',
+                        size: 20,
+                        btnColor: Colors.redAccent,
+                        borderRadius: 5),
                   ),
                   // Container(
                   //   color: Colors.greenAccent,
