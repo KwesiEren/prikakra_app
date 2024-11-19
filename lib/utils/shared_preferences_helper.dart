@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/gtask.dart';
@@ -72,8 +74,10 @@ class SharedPreferencesHelper {
     await prefs.remove(_userPasswordKey);
     await prefs.remove(_userTeamKey);
   }
-// Saving Guest todos Using shared preferences;
 
+// Saving Guest todos Using shared preferences;
+  late final SharedPreferences _sharedPreferences;
+  SharedPreferencesHelper(this._sharedPreferences);
   // Save the list of todos
   static Future<void> saveTodoList(List<Task> todos) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -106,51 +110,26 @@ class SharedPreferencesHelper {
     await saveTodoList(todos);
   }
 
-  // static Future<void> addTodo(Task newTask) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final List<String> todosJson = prefs.getStringList('todos') ?? [];
-  //   todosJson.add(jsonEncode(newTask.toJson()));
-  //   await prefs.setStringList('todos', todosJson);
-  // }
-
   static Future<void> updateTodo(Task updatedTodo) async {
-    // Retrieve the existing todo list
-    List<Task> todos = await getTodoList();
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> todosJson = prefs.getStringList('todos') ?? [];
 
-    // Find the index of the todo to be updated
-    int index = todos.indexWhere((todo) => todo.id == updatedTodo.id);
+    // Deserialize the list of tasks
+    List<Task> todos =
+        todosJson.map((todo) => Task.fromJson(jsonDecode(todo))).toList();
 
-    if (index != -1) {
-      // Replace the old todo with the updated one
-      todos[index] = updatedTodo;
-
-      // Save the updated list back to SharedPreferences
-      await saveTodoList(todos);
-    } else {
-      print("Todo with id ${updatedTodo.id} not found!");
+    // Find and update the task
+    for (int i = 0; i < todos.length; i++) {
+      if (todos[i].id == updatedTodo.id) {
+        todos[i] = updatedTodo;
+        break;
+      }
     }
-  }
 
-  // static Future<void> updateTodo(Task updatedTodo) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final List<String> todosJson = prefs.getStringList('todos') ?? [];
-  //
-  //   // Deserialize the list of tasks
-  //   List<Task> todos =
-  //       todosJson.map((todo) => Task.fromJson(jsonDecode(todo))).toList();
-  //
-  //   // Find and update the task
-  //   for (int i = 0; i < todos.length; i++) {
-  //     if (todos[i].id == updatedTodo.id) {
-  //       todos[i] = updatedTodo;
-  //       break;
-  //     }
-  //   }
-  //
-  //   // Save the updated list
-  //   final updatedJson = todos.map((todo) => jsonEncode(todo.toJson())).toList();
-  //   await prefs.setStringList('todos', updatedJson);
-  // }
+    // Save the updated list
+    final updatedJson = todos.map((todo) => jsonEncode(todo.toJson())).toList();
+    await prefs.setStringList('todos', updatedJson);
+  }
 
   static Future<void> deleteTodo(String id) async {
     List<Task> todos = await getTodoList();
