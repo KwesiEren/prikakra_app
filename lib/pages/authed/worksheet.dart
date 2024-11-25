@@ -3,27 +3,21 @@ import 'dart:io';
 
 import 'package:firebase_test2/components/button2.dart';
 import 'package:firebase_test2/components/button3.dart';
-import 'package:firebase_test2/models/sb_db.dart';
 import 'package:firebase_test2/pages/authed/all_task_page.dart';
 import 'package:firebase_test2/pages/authed/auth_user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/db_provider.dart';
-import '../models/sb_auth.dart';
 import '../models/task.dart';
-import 'formpage.dart';
+import '../services/localdb_config/db_provider.dart';
+import '../services/supabase_config/sb_auth.dart';
+import 'authed/formpage.dart';
 
 class WorkArea extends StatefulWidget {
   String userName;
   final String userEmail;
-  final String userPassword;
-  WorkArea(
-      {required this.userEmail,
-      required this.userPassword,
-      super.key,
-      required this.userName});
+  WorkArea({required this.userEmail, super.key, required this.userName});
 
   @override
   State<WorkArea> createState() => _WorkAreaState();
@@ -71,7 +65,7 @@ class _WorkAreaState extends State<WorkArea> {
     });
   }
 
-// Check if the user is in the database on app startup
+  // Check if the user is in the database on app startup
   Future<void> _checkUserInDatabase() async {
     final response = await Supabase.instance.client
         .from('user_credentials')
@@ -84,6 +78,7 @@ class _WorkAreaState extends State<WorkArea> {
     });
   }
 
+  // Method to check user login status
   Future<void> _checkLoginStatus() async {
     // Replace this with your actual login status check
     final isSignedIn = await _auth.getLoggedInUserName() != null;
@@ -105,7 +100,7 @@ class _WorkAreaState extends State<WorkArea> {
       isLoading = true;
     });
     try {
-      final todos = await AppDB.instnc.getAllTodo();
+      final todos = await AppDB.instance.getAllTodo();
       setState(() {
         _todoList = todos.map((todo) {
           todo?.isSynced = false; // Mark as unsynced when loaded
@@ -121,108 +116,18 @@ class _WorkAreaState extends State<WorkArea> {
     return _todoList;
   }
 
+  // Calls all the Task data stored
   Future<void> loadData() async {
     await _loadLocalTodos();
   }
 
-  //Fetch missing todos from Supabase:
-  Future<void> _fetchMissingTodosFromSupabase() async {
-    final response = await SupaDB.getAllSB();
-
-    // Verify if response is in List<Map<String, dynamic>> format or List<Todo>
-    if (response is List<Map<String, dynamic>>) {
-      // If response is in map format, parse it into Todo objects
-      final supabaseTodos = response
-          .map((json) => Todo.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      // Compare and find missing todos
-      final localTodos = await AppDB.instnc.getAllTodo();
-      final missingTodos = supabaseTodos.where((supabaseTodo) {
-        return !localTodos.any((localTodo) => localTodo!.id == supabaseTodo.id);
-      }).toList();
-
-      // Add missing todos to the local database
-      for (var todo in missingTodos) {
-        await AppDB.instnc.addTodo(todo);
-      }
-    } else if (response is List<Todo>) {
-      // If response is already a list of Todo objects, use it directly
-      final supabaseTodos = response;
-
-      final localTodos = await AppDB.instnc.getAllTodo();
-      final missingTodos = supabaseTodos.where((supabaseTodo) {
-        return !localTodos.any((localTodo) => localTodo!.id == supabaseTodo.id);
-      }).toList();
-
-      for (var todo in missingTodos) {
-        await AppDB.instnc.addTodo(todo);
-        //await SupaDB.updateSyncSB();
-      }
-    } else {
-      throw Exception("Unexpected response format from Supabase");
-    }
-
-    debugPrint("Missing todos have been successfully pulled from Supabase.");
-
-    // Refresh the UI with the latest todos
-    setState(() {
-      _loadLocalTodos();
-    });
-  }
-
-  // Sync local Todos to the Online database
-  Future<void> _syncLocalTodosToSupabase() async {
-    final unsyncedTodos = _todoList.where((todo) => !todo!.isSynced).toList();
-
-    if (unsyncedTodos.isEmpty) {
-      debugPrint("No unsynced todos to upload.");
-      return;
-    }
-
-    // Prepare data for upsert with isSynced set to true for Supabase
-    final upsertData = unsyncedTodos.map((todo) {
-      final json = todo!.toJson();
-      json['isSynced'] = true; // Set isSynced to true for Supabase
-      return json;
-    }).toList();
-
-    final response =
-        await Supabase.instance.client.from('todoTable').upsert(upsertData);
-
-    if (response.error != null) {
-      debugPrint("Failed to sync todos: ${response.error!.message}");
-    } else {
-      // Mark todos as synced in the local database
-      for (var todo in unsyncedTodos) {
-        todo!.isSynced = true;
-        await AppDB.instnc.updateTodoSyncStatus(todo.id!, true);
-      }
-      debugPrint("Successfully synced todos.");
-    }
-
-    setState(() {
-      _loadLocalTodos(); // Refresh local todos list after syncing
-    });
-  }
-
-  // Toggle status of a Task on local databse and online database, if only online
-
   // Creates todos and adds it to the local database
   void _addTodo(Todo newTodo) async {
-    await AppDB.instnc.addTodo(newTodo);
+    await AppDB.instance.addTodo(newTodo);
     _loadLocalTodos();
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(
-    //     content: Text(
-    //       'Todo added successfully!',
-    //       style: TextStyle(color: Colors.white),
-    //     ),
-    //     backgroundColor: Colors.amberAccent,
-    //   ),
-    // );
   }
 
+  // Method to Log out the User from the app
   Future<void> _closesession() async {
     if (isUserInDatabase) {
       await _auth.logout();
@@ -385,7 +290,7 @@ class _WorkAreaState extends State<WorkArea> {
                       _closesession();
                     },
                     title: ButnTyp3(
-                        text: isUserInDatabase ? 'Log out' : 'Log in',
+                        text: 'Log out',
                         size: 20,
                         btnColor: Colors.redAccent,
                         borderRadius: 5),
@@ -413,7 +318,7 @@ class _WorkAreaState extends State<WorkArea> {
                           ),
                   child: TabBarView(children: [
                     if (isLoggedIn) const OnlyUserTask(),
-                    if (isLoggedIn) const AllTask()
+                    if (_isOnline) const AllTask()
                   ]))),
           //BODY ENDS HERE
 
